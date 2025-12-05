@@ -67,10 +67,16 @@ Toto API má mnoho metod volání API endpointů. V následující části si ro
 ### .postOrders
 
 # Vysvětlení
-Toto API volá endpointy na stravě.cz. Každý POST i GET request musí mít SID - komunikační prostředek klienta. Kterákoliv akce je zavolání API endpointu. Tento script simuluje volání endpointů. 
+Tento skript slouží k simulaci volání API endpointů používaných službou strava.cz. Každý požadavek musí obsahovat SID. Bez něj server požadavek odmítne. Každá akce ve webovém rozhraní (např. načtení jídelníčku, přihlášení oběda nebo uložení objednávky) odpovídá jednomu volání určitého API endpointu.
 
-## GET
-Pošle se GET request na určitý endpoint např. getJidelnicek. Tento request musí mít SID a cookies. Server request přijme a vrátí obsah v plain JSON textu. 
+## GET requesty
+Při volání endpointů typu GET (například getJidelnicek) klient odešle dotaz, který musí vždy obsahovat platný SID a současně cookies uložené při přihlášení. Server poté na základě těchto údajů ověří identitu uživatele a vrátí odpověď ve formátu JSON. Tento JSON obsahuje například dostupné obědy, ceny nebo aktuální stav objednávek. Nejde tedy o HTML stránku, ale o čistá data určená pro strojové zpracování.
 
-## POST
-Zde je to trochu složitejší. Při objednávání obědů se využívá cookies. Uživatel si vybere jaké obědy chce přihlásit. Každé přihlášení je POST request. Uživatel pošle konkrétní oběd. Server mu vrátí upravené cookies. Uživatel může přihlásit další obědy nebo klikne uložit objednávky. Poté se pošle cookies na server a server to zpracuje a přihlásí.
+## POST requesty
+Endpointy typu POST se používají pro akce, kdy se odesílají změny nebo objednávky – typicky při přihlašování či odhlašování obědů.
+
+1. Uživatel si na webu vybere obědy, které chce přihlásit nebo odhlásit.
+2. Každý výběr odpovídá jednomu POST requestu, který se odešle spolu s aktuálními cookies.
+3. Server na základě požadavku upraví cookies (např. uloží rozpracovanou objednávku) a pošle je zpět klientovi.
+4. Klient může pokračovat ve výběru dalších jídel, přičemž se cookies s každým požadavkem aktualizují.
+5. Po dokončení výběru se odešle finální požadavek – obvykle typu uložit objednávku –, který pošle upravené cookies zpět na server. Server poté objednávku zpracuje a potvrdí ji.
