@@ -46,17 +46,59 @@ from api import StravaApi
 ```py
 from api import StravaApi
 
-# !! EXAMPLE !!
-api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=", "Mozilla/5.0 (X11; Linux x86_64)")
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)")
 ```
 
 Momentálně jsme vytvořili náš objekt `api_session`. Je nutné mít **validní SID**. Je také nutné mít správné cookies a user_agent.
 
+- **Defaultní cookies:** `NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D"`
+
+- Defaultní cookies lze využít. Pokud je potřeba, můžeme upravit.
+
+**Examples jsou ve složce ./examples**
+
 ## Metody
 Toto API má mnoho metod volání API endpointů. V následující části si rozebereme každou, jak ji použít a co vrátí. 
 
+**Examples jsou ve složce ./examples**
+
 ### .getJidelnicek
+- Endpoint `objednavky`
+- Vrátí jídelníček v json struktuře.
+
+```
+from api import StravaApi
+
+
+# initializujeme spojení
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+
+# zavoláme endpoint
+jidelnicek = api_session.getJidelnicek()
+
+# vytiskneme náš jídelníček
+print(jidelnicek)
+```
+
+
 ### .getInfo
+- Endpoint `nactiVlastnostiPA`
+- Vrátí jídelníček v json struktuře.
+
+```
+from api import StravaApi
+
+
+# initializujeme spojení
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+
+# zavoláme endpoint
+info = api_session.getInfo()
+
+# vytiskneme info o uživateli a jídelně
+print(info)
+```
+
 ### .getJidelna
 ### .getHistorieKlienta
 ### .getPlaby
