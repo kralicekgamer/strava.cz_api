@@ -54,6 +54,7 @@ Momentálně jsme vytvořili náš objekt `api_session`. Je nutné mít **validn
 - **Defaultní cookies:** `NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D"`
 
 - Defaultní cookies lze využít. Pokud je potřeba, můžeme upravit.
+- User-Agent není potřeba, ale je doporučeno ho použít.
 
 **Examples jsou ve složce ./examples**
 
@@ -63,7 +64,6 @@ Toto API má mnoho metod volání API endpointů. V následující části si ro
 **Examples jsou ve složce ./examples**
 
 ### .getJidelnicek
-- Endpoint `objednavky`
 - Vrátí jídelníček v json struktuře.
 
 ```
@@ -82,7 +82,6 @@ print(jidelnicek)
 
 
 ### .getInfo
-- Endpoint `nactiVlastnostiPA`
 - Vrátí jídelníček v json struktuře.
 
 ```
@@ -100,9 +99,75 @@ print(info)
 ```
 
 ### .getJidelna
+- Získá informace o jídělně
+
+```
+from api import StravaApi
+
+
+# initializujeme spojení
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+
+# zavoláme endpoint
+info = api_session.getJidelna()
+
+# vytiskneme info o jídelně
+print(info)
+```
+
 ### .getHistorieKlienta
+- Získá info o historii objednávek klienta v určitém měsíci.
+- date = počáteční datum měsíce. 
+    - 2025-01-01 - leden
+    - 2025-12-01 - prosinec
+
+```
+from api import StravaApi
+
+
+# initializujeme spojení
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+
+# zavoláme endpoint
+info = api_session.getHistorieKlienta()
+
+# vytiskneme historii obejnávek klienta
+print(info)
+```
+
 ### .getPlaby
+- Vrátí pohyby na klientovém účtu
+
+```
+from api import StravaApi
+
+
+# initializujeme spojení
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+
+# zavoláme endpoint
+info = api_session.getPlaby()
+
+# vytiskneme pohyby na klientovém účtu
+print(info)
+```
+
 ### .getMessages
+- Získá informace z jídelny
+
+```
+from api import StravaApi
+
+
+# initializujeme spojení
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+
+# zavoláme endpoint
+info = api_session.getMessages()
+
+# vytiskneme informace z jídelny
+print(info)
+```
 
 ### .postJidlo
 ### .postDen
