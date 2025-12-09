@@ -11,8 +11,8 @@ class StravaApi:
         self.user = user
 
 
-    def getJidelnicek(self):
-        """Get jidelnicku v json formatu"""
+    def getJidelnicekToday(self):
+        """Get dnesniho jidelnicku v json formatu"""
         url = "https://app.strava.cz/api/objednavky"
 
         payload = {
@@ -38,6 +38,37 @@ class StravaApi:
         if response.status_code == 200:
             data = response.json()
             return json.dumps(data.get("table0", []), indent=2, ensure_ascii=False)
+
+        else:
+            print(f"Chyba {response.status_code}: {response.text}")
+
+    def getJidelnicekAll(self):
+        """Get celeho jidelnicku v json formatu"""
+        url = "https://app.strava.cz/api/objednavky"
+
+        payload = {
+            "cislo": self.cislo_jidelny,
+            "sid": self.sid,
+            "s5url": "https://wss5.strava.cz/WSStravne5_3/WSStravne5.svc",
+            "lang": "CZ",
+            "konto": 0,
+            "podminka": "",
+            "ignoreCert": "false"
+        }
+
+        headers = {
+            "Content-Type": "text/plain;charset=UTF-8",
+            "Cookie": self.cookie, 
+            "User-Agent": self.user_agent,
+            "Referer": "https://app.strava.cz/"
+        }
+
+        response = requests.post(url, headers=headers, json=payload)
+
+
+        if response.status_code == 200:
+            data = response.json()
+            return json.dumps(data, indent=2, ensure_ascii=False)
 
         else:
             print(f"Chyba {response.status_code}: {response.text}")

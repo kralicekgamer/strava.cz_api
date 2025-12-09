@@ -17,4 +17,4 @@ sid = autorization_token.getSid()
 
 # Inicializujeme spojeni a vytiskneme jidelnicek
 example = StravaApi(sid, jidelna, cookies, "", username)
-print(example.getJidelnicek())
+print(example.getJidelnicekToday())

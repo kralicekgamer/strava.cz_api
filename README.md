@@ -64,8 +64,8 @@ Toto API má mnoho metod volání API endpointů. V následující části si ro
 
 **Examples jsou ve složce ./examples**
 
-### .getJidelnicek
-- Vrátí jídelníček v json struktuře.
+### .getJidelnicekToday
+- Vrátí dnešní jídelníček v JSON formátu.
 
 ```py
 from api import StravaApi
@@ -75,12 +75,28 @@ from api import StravaApi
 api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
 
 # zavoláme endpoint
-jidelnicek = api_session.getJidelnicek()
+jidelnicek = api_session.getJidelnicekToday()
 
 # vytiskneme náš jídelníček
 print(jidelnicek)
 ```
 
+### .getJidelnicekAll
+- Vrátí celý jídelníček v JSON formátu
+
+```py
+from api import StravaApi
+
+
+# initializujeme spojení
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+
+# zavoláme endpoint
+jidelnicek = api_session.getJidelnicekAll()
+
+# vytiskneme náš jídelníček
+print(jidelnicek)
+```
 
 ### .getInfo
 - Vrátí jídelníček v json struktuře.
