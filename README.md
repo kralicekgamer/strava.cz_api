@@ -36,7 +36,6 @@ print(autorization_token.getSid())
 
 ## Initializace
 Jakmile máme cookies a SID můžeme initializovat autorizaci v našem scriptu. 
-from api import StravaApi
 
 ```py
 from api import StravaApi
@@ -140,7 +139,7 @@ from api import StravaApi
 api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "user")
 
 # zavoláme endpoint
-info = api_session.getHistorieKlienta()
+info = api_session.getHistorieKlienta("2025-01-01")
 
 # vytiskneme historii obejnávek klienta
 print(info)
