@@ -11,6 +11,18 @@ class StravaApi:
         self.user = user
 
 
+    def call(url, headers, payload):
+        response = requests.post(url, headers=headers, json=payload)
+
+
+        if response.status_code == 200:
+            data = response.json()
+            return json.dumps(data, indent=2, ensure_ascii=False)
+
+        else:
+            print(f"Chyba {response.status_code}: {response.text}")
+
+
     def getJidelnicekToday(self):
         """Get dnesniho jidelnicku v json formatu"""
         url = "https://app.strava.cz/api/objednavky"
@@ -32,15 +44,10 @@ class StravaApi:
             "Referer": "https://app.strava.cz/"
         }
 
-        response = requests.post(url, headers=headers, json=payload)
+        data = json.loads(StravaApi.call(url, headers, payload))
 
+        return data.get("table0", [])
 
-        if response.status_code == 200:
-            data = response.json()
-            return json.dumps(data.get("table0", []), indent=2, ensure_ascii=False)
-
-        else:
-            print(f"Chyba {response.status_code}: {response.text}")
 
     def getJidelnicekAll(self):
         """Get celeho jidelnicku v json formatu"""
@@ -63,15 +70,7 @@ class StravaApi:
             "Referer": "https://app.strava.cz/"
         }
 
-        response = requests.post(url, headers=headers, json=payload)
-
-
-        if response.status_code == 200:
-            data = response.json()
-            return json.dumps(data, indent=2, ensure_ascii=False)
-
-        else:
-            print(f"Chyba {response.status_code}: {response.text}")
+        return StravaApi.call(url, headers, payload)
 
 
     def getInfo(self):
@@ -97,15 +96,7 @@ class StravaApi:
             "Referer": "https://app.strava.cz/"
         }
 
-        response = requests.post(url, headers=headers, json=payload)
-
-
-        if response.status_code == 200:
-            data = response.json()
-            return json.dumps(data, indent=2, ensure_ascii=False)
-
-        else:
-            print(f"Chyba {response.status_code}: {response.text}")
+        return StravaApi.call(url, headers, payload)
 
 
     def getJidelna(self):
@@ -126,15 +117,7 @@ class StravaApi:
             "Referer": "https://app.strava.cz/"
         }
 
-        response = requests.post(url, headers=headers, json=payload)
-
-
-        if response.status_code == 200:
-            data = response.json()
-            return json.dumps(data, indent=2, ensure_ascii=False)
-
-        else:
-            print(f"Chyba {response.status_code}: {response.text}")
+        return StravaApi.call(url, headers, payload)
 
 
     def getHistorieKlienta(self, date):
@@ -163,15 +146,7 @@ class StravaApi:
             "Referer": "https://app.strava.cz/"
         }
 
-        response = requests.post(url, headers=headers, json=payload)
-
-
-        if response.status_code == 200:
-            data = response.json()
-            return json.dumps(data, indent=2, ensure_ascii=False)
-
-        else:
-            print(f"Chyba {response.status_code}: {response.text}")
+        return StravaApi.call(url, headers, payload)
 
 
     def getPlaby(self):
@@ -193,15 +168,7 @@ class StravaApi:
             "Referer": "https://app.strava.cz/"
         }
 
-        response = requests.post(url, headers=headers, json=payload)
-
-
-        if response.status_code == 200:
-            data = response.json()
-            return json.dumps(data, indent=2, ensure_ascii=False)
-
-        else:
-            print(f"Chyba {response.status_code}: {response.text}")
+        return StravaApi.call(url, headers, payload)
 
 
     def getMessages(self):
@@ -223,15 +190,7 @@ class StravaApi:
             "Referer": "https://app.strava.cz/"
         }
 
-        response = requests.post(url, headers=headers, json=payload)
-
-
-        if response.status_code == 200:
-            data = response.json()
-            return json.dumps(data, indent=2, ensure_ascii=False)
-
-        else:
-            print(f"Chyba {response.status_code}: {response.text}")
+        return StravaApi.call(url, headers, payload)
 
 
     def postJidlo(self, veta, stav):
