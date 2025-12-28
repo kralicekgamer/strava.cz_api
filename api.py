@@ -3,11 +3,10 @@ import json
 
 
 class StravaApi:
-    def __init__(self, sid, cislo_jidelny, cookie, user_agent, user):
+    def __init__(self, sid, cislo_jidelny, cookie, user):
         self.sid = sid
         self.cislo_jidelny = cislo_jidelny
         self.cookie = cookie
-        self.user_agent = user_agent
         self.user = user
 
 
@@ -40,7 +39,6 @@ class StravaApi:
         headers = {
             "Content-Type": "text/plain;charset=UTF-8",
             "Cookie": self.cookie, 
-            "User-Agent": self.user_agent,
             "Referer": "https://app.strava.cz/"
         }
 
@@ -66,7 +64,6 @@ class StravaApi:
         headers = {
             "Content-Type": "text/plain;charset=UTF-8",
             "Cookie": self.cookie, 
-            "User-Agent": self.user_agent,
             "Referer": "https://app.strava.cz/"
         }
 
@@ -92,7 +89,6 @@ class StravaApi:
         headers = {
             "Content-Type": "text/plain;charset=UTF-8",
             "Cookie": self.cookie, 
-            "User-Agent": self.user_agent,
             "Referer": "https://app.strava.cz/"
         }
 
@@ -113,7 +109,6 @@ class StravaApi:
         headers = {
             "Content-Type": "text/plain;charset=UTF-8",
             "Cookie": self.cookie, 
-            "User-Agent": self.user_agent,
             "Referer": "https://app.strava.cz/"
         }
 
@@ -142,7 +137,6 @@ class StravaApi:
         headers = {
             "Content-Type": "text/plain;charset=UTF-8",
             "Cookie": self.cookie, 
-            "User-Agent": self.user_agent,
             "Referer": "https://app.strava.cz/"
         }
 
@@ -164,7 +158,6 @@ class StravaApi:
         headers = {
             "Content-Type": "text/plain;charset=UTF-8",
             "Cookie": self.cookie, 
-            "User-Agent": self.user_agent,
             "Referer": "https://app.strava.cz/"
         }
 
@@ -186,7 +179,6 @@ class StravaApi:
         headers = {
             "Content-Type": "text/plain;charset=UTF-8",
             "Cookie": self.cookie, 
-            "User-Agent": self.user_agent,
             "Referer": "https://app.strava.cz/"
         }
 
@@ -216,7 +208,6 @@ class StravaApi:
         headers = {
             "Content-Type": "text/plain;charset=UTF-8",
             "Cookie": self.cookie, 
-            "User-Agent": self.user_agent,
             "Referer": "https://app.strava.cz/"
         }
 
@@ -252,7 +243,6 @@ class StravaApi:
         headers = {
             "Content-Type": "text/plain;charset=UTF-8",
             "Cookie": self.cookie, 
-            "User-Agent": self.user_agent,
             "Referer": "https://app.strava.cz/"
         }
 
@@ -291,7 +281,6 @@ class StravaApi:
         headers = {
             "Content-Type": "text/plain;charset=UTF-8",
             "Cookie": self.cookie, 
-            "User-Agent": self.user_agent,
             "Referer": "https://app.strava.cz/"
         }
 
@@ -309,14 +298,10 @@ class StravaApi:
 
 
 class Sid:
-    def __init__(self, username, password, cislo_jidelny, user_agent):
-        """
-        user_agent - nutne ziskat z dev tools - navod v dokumentaci.
-        """
+    def __init__(self, username, password, cislo_jidelny):
         self.__username = username
         self.__password = password
         self.__cislo_jidelny = cislo_jidelny
-        self.__user_agent = user_agent
 
     
     def getSid(self):
@@ -334,7 +319,6 @@ class Sid:
         headers = {
             "Content-Type": "text/plain;charset=UTF-8",
             "Cookie": "NEXT_LOCALE=cs", 
-            "User-Agent": "https://app.strava.cz/prihlasit-se?jidelna=",
             "Referer": "https://app.strava.cz/"
         }
 

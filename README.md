@@ -21,14 +21,9 @@ Importujeme API a classu na getnutí SID tokenu, poté vytvoříme objekt autori
 ```py
 from api import StravaApi, Sid
 
-autorization_token = Sid("{username}", "{password}", {cislo_jidelny}, "{user_agent}")
+autorization_token = Sid("{username}", "{password}", {cislo_jidelny})
 print(autorization_token.getSid())
 ```
-
-user_agent - **nutné získat z devtools**
-- F12>konzole>napiš `navigator.userAgent`.
-Vrátí se ti user_agent.
-
 
 ### Manuálně
 1. Otevřeme strava.cz
@@ -40,22 +35,21 @@ Vrátí se ti user_agent.
 
 
 ## Initializace
-Jakmile máme cookies, user_agent a SID můžeme initializovat autorizaci v našem scriptu. 
+Jakmile máme cookies a SID můžeme initializovat autorizaci v našem scriptu. 
 from api import StravaApi
 
 ```py
 from api import StravaApi
 
-api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "user")
 ```
 
 - SID(str) - identifikační klíč komunikace, getnout pomocí Sid.getSid() nebo manuálně z dev tools, nutné
 - cislo_jidelny(int) - číslo naší jídelny na kterou se přihlašujeme, nutné
 - cookies(str) - můžeme vyplnit custom, ve většině případů - `NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D"`
-- user_agent(str) - user-agent z dev tools; F12>konzole>napiš `navigator.userAgent`.
 - user(str) - uživatelské jméno
 
-Momentálně jsme vytvořili náš objekt `api_session`. Je nutné mít **validní SID**. Také je nutné mít správné cookies, aby komunikace správně fungovala. Je doporučeno také uvést user-agent
+Momentálně jsme vytvořili náš objekt `api_session`. Je nutné mít **validní SID**. Také je nutné mít správné cookies, aby komunikace správně fungovala.
 
 **Examples jsou ve složce ./examples**
 
@@ -72,7 +66,7 @@ from api import StravaApi
 
 
 # initializujeme spojení
-api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "user")
 
 # zavoláme endpoint
 jidelnicek = api_session.getJidelnicekToday()
@@ -89,7 +83,7 @@ from api import StravaApi
 
 
 # initializujeme spojení
-api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "user")
 
 # zavoláme endpoint
 jidelnicek = api_session.getJidelnicekAll()
@@ -106,7 +100,7 @@ from api import StravaApi
 
 
 # initializujeme spojení
-api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "user")
 
 # zavoláme endpoint
 info = api_session.getInfo()
@@ -123,7 +117,7 @@ from api import StravaApi
 
 
 # initializujeme spojení
-api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "user")
 
 # zavoláme endpoint
 info = api_session.getJidelna()
@@ -143,7 +137,7 @@ from api import StravaApi
 
 
 # initializujeme spojení
-api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "user")
 
 # zavoláme endpoint
 info = api_session.getHistorieKlienta()
@@ -160,7 +154,7 @@ from api import StravaApi
 
 
 # initializujeme spojení
-api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "user")
 
 # zavoláme endpoint
 info = api_session.getPlaby()
@@ -177,7 +171,7 @@ from api import StravaApi
 
 
 # initializujeme spojení
-api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "user")
 
 # zavoláme endpoint
 info = api_session.getMessages()
@@ -196,7 +190,7 @@ from api import StravaApi
 
 
 # initializujeme spojení
-api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "user")
 
 # zavoláme endpoint, přihlásíme veta 5
 api_session.postJidlo(5, 1)
@@ -214,7 +208,7 @@ from api import StravaApi
 
 
 # initializujeme spojení
-api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "user")
 
 # zavoláme endpoint, přihlásíme 2025-12-30
 api_session.postDen("2025-12-30", 1)
@@ -231,7 +225,7 @@ from api import StravaApi
 
 
 # initializujeme spojení
-api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "Mozilla/5.0 (X11; Linux x86_64)", "user")
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", "user")
 
 # zavoláme endpoint, přihlásíme veta 5
 api_session.postJidlo(5, 1)
