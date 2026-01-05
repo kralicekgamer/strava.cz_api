@@ -3,11 +3,10 @@ import json
 
 
 class StravaApi:
-    def __init__(self, sid, cislo_jidelny, cookie, user):
+    def __init__(self, sid, cislo_jidelny, cookie):
         self.sid = sid
         self.cislo_jidelny = cislo_jidelny
         self.cookie = cookie
-        self.user = user
 
 
     def call(url, headers, payload):
@@ -93,6 +92,14 @@ class StravaApi:
         }
 
         return StravaApi.call(url, headers, payload)
+    
+
+    def getUsername(self):
+        """Ziska uzivatelske jmeno"""
+
+        info = json.loads(self.getInfo())
+
+        return info.get("id")
 
 
     def getJidelna(self):
@@ -169,13 +176,14 @@ class StravaApi:
         url = "https://app.strava.cz/api/messagesGetList"
 
         payload = {
-            "sid":"",
+            "sid": "",
             "idO":"",
-            "idJ":self.cislo_jidelny,
-            "idU":self.user,
-            "typZpravy":""
+            "idJ": self.cislo_jidelny,
+            "idU": self.getUsername(),
+            "typZpravy": ""
         }
 
+        
         headers = {
             "Content-Type": "text/plain;charset=UTF-8",
             "Cookie": self.cookie, 
