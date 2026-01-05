@@ -90,6 +90,23 @@ jidelnicek = api_session.getJidelnicekAll()
 print(jidelnicek)
 ```
 
+### .getUsername
+- Vrátí uživatelské jméno.
+
+```py
+from api import StravaApi
+
+
+# initializujeme spojení
+api_session = StravaApi("00000000000000000000000000000000", "4242", "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D")
+
+# zavoláme endpoint
+user = api_session.getUsername()
+
+# vytiskneme uzivatelske jmeno
+print(user)
+```
+
 ### .getInfo
 - Vrátí jídelníček v json struktuře.
 
