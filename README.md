@@ -3,6 +3,13 @@
 Toto je **neoficiální** rest api pro stravu.cz. V tomto dokumentu je popsáno vše co potřebuješ vědet o tomto API. Je zde také vysvětleno dopodrobna jak to celé funguje.
 
 # Docs
+## Instalace API
+API nainstalujeme přes PyPI
+
+```
+pip install strava.cz_api
+```
+
 ## Import API
 Na začátku tvé aplikace je nutné importovat API.
 
