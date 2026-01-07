@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Strava.cz API"
+version = "1.1"
+description = "Rest API for strava.cz."
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+  { name="Matěj Adamec", email="kralyk@kralyk.dev" }
+]
