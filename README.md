@@ -72,7 +72,7 @@ Toto API má mnoho metod volání API endpointů. V následující části si ro
 from api import Public
 
 # vytiskneme jídelníček
-print(Public.getJidelnicek("6218"))
+print(Public.getJidelnicek("4242"))
 ```
 
 ### .getJidelnicekToday
