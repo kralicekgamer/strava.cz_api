@@ -305,6 +305,36 @@ class StravaApi:
             print(f"Chyba {response.status_code}: {response.text}")
 
 
+class Public:
+    def getJidelnicek(cislo_jidelny):
+        """
+        Získání public jídelníčků.
+        """
+        url = "https://app.strava.cz/api/jidelnicky"
+
+        payload = {
+            "cislo":cislo_jidelny,
+            "s5url":"https://wss5.strava.cz/WSStravne5_3/WSStravne5.svc",
+            "lang":"CZ","ignoreCert":False
+        }
+
+        headers = {
+            "Content-Type": "text/plain;charset=UTF-8",
+            "Cookie": "multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%2C%22unsavedOrders%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A1767995670863%7D%7D; multiContext=%7B%22unsavedOrders%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A1767995670863%7D%7D", 
+            "Referer": "https://app.strava.cz/"
+        }
+
+    
+        response = requests.post(url, headers=headers, json=payload)
+
+        if response.status_code == 200:
+            data = response.json()
+            return json.dumps(data, indent=2, ensure_ascii=False)
+
+        else:
+            print(f"Chyba {response.status_code}: {response.text}")
+
+
 class Sid:
     def __init__(self, username, password, cislo_jidelny):
         self.__username = username
