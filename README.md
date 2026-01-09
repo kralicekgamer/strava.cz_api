@@ -63,6 +63,18 @@ Toto API má mnoho metod volání API endpointů. V následující části si ro
 
 **Examples jsou ve složce ./examples**
 
+## Public.getJidelnicek
+- Vrátí jídelníček v json formátu. Pouze potřeba číslo jídelny. 
+- Nutné importovat public.
+
+```py
+# importujeme class public
+from api import Public
+
+# vytiskneme jídelníček
+print(Public.getJidelnicek("6218"))
+```
+
 ### .getJidelnicekToday
 - Vrátí dnešní jídelníček v JSON formátu.
 
