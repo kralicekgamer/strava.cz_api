@@ -1,20 +1,18 @@
 # made by OpiKula
 
-from api import StravaApi, Sid
+from strava import Api, Auth
 import getpass
-
-# Nastavime cookies
-cookies = "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D"
 
 # Ziskame od uzivatele credentials
 username = input("Zadej zde svoje uživatelské jméno: ")
 password = getpass.getpass("Zadej zde svoje heslo: ")
-jidelna = int(input("Zadej zde číslo jídelny: "))
+jidelna = input("Zadej zde číslo jídelny: ")
 
-# Getneme SID
-autorization_token = Sid(username, password, jidelna, "")
-sid = autorization_token.getSid()
+# Poslani post requestu a getnuti SID a s5url
+cookie, data = Auth.login(username, password, jidelna)
+sid, s5url = Auth.getCredentials(data)
+
 
 # Inicializujeme spojeni a vytiskneme jidelnicek
-example = StravaApi(sid, jidelna, cookies, username)
+example = Api(sid, s5url, jidelna)
 print(example.getJidelnicekToday())
