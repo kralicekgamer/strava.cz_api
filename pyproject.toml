@@ -7,7 +7,7 @@ where = ["."]
 
 [project]
 name = "strava_cz_api"
-version = "2.1.2"
+version = "2.2"
 description = "Rest API for strava.cz."
 readme = "README.md"
 requires-python = ">=3.8"
