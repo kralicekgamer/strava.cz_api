@@ -1,77 +1,53 @@
 import requests
 import json
+from action import Get
 
-
-class StravaApi:
-    def __init__(self, sid, cislo_jidelny, cookie):
-        self.sid = sid
-        self.cislo_jidelny = cislo_jidelny
-        self.cookie = cookie
-
-
-    def call(url, headers, payload):
-        response = requests.post(url, headers=headers, json=payload)
-
-
-        if response.status_code == 200:
-            data = response.json()
-            return json.dumps(data, indent=2, ensure_ascii=False)
+class Api:
+    def __init__(self, sid, s5url, cislo_jidelny, cookie="NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D"):
+        if len(sid) == 32:
+            self.sid = sid
 
         else:
-            print(f"Chyba {response.status_code}: {response.text}")
+            raise ValueError("Číslo musí být dlouhé 32 znaků")
+        
+        self.cislo_jidelny = cislo_jidelny
+        self.cookie = cookie
+        self.s5url = s5url
+
+        self.base = "https://app.strava.cz/api"
 
 
     def getJidelnicekToday(self):
-        """Get dnesniho jidelnicku v json formatu"""
-        url = "https://app.strava.cz/api/objednavky"
-
-        payload = {
-            "cislo": self.cislo_jidelny,
-            "sid": self.sid,
-            "s5url": "https://wss5.strava.cz/WSStravne5_3/WSStravne5.svc",
-            "lang": "CZ",
-            "konto": 0,
-            "podminka": "",
-            "ignoreCert": "false"
-        }
-
-        headers = {
-            "Content-Type": "text/plain;charset=UTF-8",
-            "Cookie": self.cookie, 
-            "Referer": "https://app.strava.cz/"
-        }
-
-        data = json.loads(StravaApi.call(url, headers, payload))
-
-        return data.get("table0", [])
+        """
+        Vrátí dnešní jídelníček
+        """
+        return json.loads(Api.getJidelnicekAll()).get("table0", [])
 
 
     def getJidelnicekAll(self):
-        """Get celeho jidelnicku v json formatu"""
-        url = "https://app.strava.cz/api/objednavky"
+        """
+        Vrátí celý jídelníček
+        """
+        url = f"{self.base}/objednavky"
 
         payload = {
             "cislo": self.cislo_jidelny,
             "sid": self.sid,
-            "s5url": "https://wss5.strava.cz/WSStravne5_3/WSStravne5.svc",
+            "s5url": self.s5url,
             "lang": "CZ",
             "konto": 0,
             "podminka": "",
             "ignoreCert": "false"
         }
 
-        headers = {
-            "Content-Type": "text/plain;charset=UTF-8",
-            "Cookie": self.cookie, 
-            "Referer": "https://app.strava.cz/"
-        }
-
-        return StravaApi.call(url, headers, payload)
+        return Get.call(url, payload)
 
 
     def getInfo(self):
-        """Ziska info o uzivateli"""
-        url = "https://app.strava.cz/api/nactiVlastnostiPA"
+        """
+        Vrátí info o uživateli
+        """
+        url = f"{self.base}/nactiVlastnostiPA"
 
         payload = {
             "sid":self.sid,
@@ -85,26 +61,19 @@ class StravaApi:
             "frontendFunction":"refreshInformations"
         }
 
-        headers = {
-            "Content-Type": "text/plain;charset=UTF-8",
-            "Cookie": self.cookie, 
-            "Referer": "https://app.strava.cz/"
-        }
 
-        return StravaApi.call(url, headers, payload)
+        return Get.call(url, payload)
     
 
     def getUsername(self):
-        """Ziska uzivatelske jmeno"""
+        """Vrátí uživatelské jméno"""
 
-        info = json.loads(self.getInfo())
-
-        return info.get("id")
+        return json.loads(self.getInfo()).get("id")
 
 
     def getJidelna(self):
         """Ziska info o jidelne"""
-        url = "https://app.strava.cz/api/jidelnaS5"
+        url = f"{self.base}/jidelnaS5"
 
         payload = {
             "cislo": self.cislo_jidelny,
@@ -113,13 +82,8 @@ class StravaApi:
             "ignoreCert":"false"
         }
 
-        headers = {
-            "Content-Type": "text/plain;charset=UTF-8",
-            "Cookie": self.cookie, 
-            "Referer": "https://app.strava.cz/"
-        }
 
-        return StravaApi.call(url, headers, payload)
+        return Get.call(url, payload)
 
 
     def getHistorieKlienta(self, date):
@@ -130,7 +94,7 @@ class StravaApi:
         2025-01-01 - leden
         2025-12-01 - prosinec
         """
-        url = "https://app.strava.cz/api/historieKlienta"
+        url = f"{self.base}/historieKlienta"
 
         payload = {
             "sid":self.sid,
@@ -141,18 +105,13 @@ class StravaApi:
             "ignoreCert":"false"
         }
 
-        headers = {
-            "Content-Type": "text/plain;charset=UTF-8",
-            "Cookie": self.cookie, 
-            "Referer": "https://app.strava.cz/"
-        }
 
-        return StravaApi.call(url, headers, payload)
+        return Get.call(url, payload)
 
 
     def getPlaby(self):
         """Vrati platby na uctu."""
-        url = "https://app.strava.cz/api/platby"
+        url = f"{self.base}/platby"
 
         payload = {
             "sid":self.sid,
@@ -162,18 +121,13 @@ class StravaApi:
             "ignoreCert":"false"
         }
 
-        headers = {
-            "Content-Type": "text/plain;charset=UTF-8",
-            "Cookie": self.cookie, 
-            "Referer": "https://app.strava.cz/"
-        }
 
-        return StravaApi.call(url, headers, payload)
+        return Get.call(url, payload)
 
 
     def getMessages(self):
         """Vrati zpravy poslane uzivatelovi"""
-        url = "https://app.strava.cz/api/messagesGetList"
+        url = f"{self.base}/messagesGetList"
 
         payload = {
             "sid": "",
@@ -184,13 +138,8 @@ class StravaApi:
         }
 
         
-        headers = {
-            "Content-Type": "text/plain;charset=UTF-8",
-            "Cookie": self.cookie, 
-            "Referer": "https://app.strava.cz/"
-        }
 
-        return StravaApi.call(url, headers, payload)
+        return Get.call(url, payload)
 
 
     def postJidlo(self, veta, stav):
@@ -201,7 +150,7 @@ class StravaApi:
         veta = cislo policka/jidla - napr v getJidelnicek()
         stav =  0 ohlasit - 1 prihlasit
         """
-        url = "https://app.strava.cz/api/pridejJidloS5"
+        url = f"{self.base}/pridejJidloS5"
 
         payload = {
             "cislo": self.cislo_jidelny,
@@ -213,11 +162,6 @@ class StravaApi:
             "ignoreCert":"false"
         }
 
-        headers = {
-            "Content-Type": "text/plain;charset=UTF-8",
-            "Cookie": self.cookie, 
-            "Referer": "https://app.strava.cz/"
-        }
 
         
         response = requests.post(url, headers=headers, json=payload)
@@ -236,7 +180,7 @@ class StravaApi:
 
     def postOrders(self):
         """Ulozi objednavky"""
-        url = "https://app.strava.cz/api/saveOrders"
+        url = f"{self.base}/saveOrders"
 
         payload = {
             "cislo":self.cislo_jidelny,
@@ -248,11 +192,6 @@ class StravaApi:
         }
         
 
-        headers = {
-            "Content-Type": "text/plain;charset=UTF-8",
-            "Cookie": self.cookie, 
-            "Referer": "https://app.strava.cz/"
-        }
 
         response = requests.post(url, headers=headers, json=payload)
 
@@ -274,7 +213,7 @@ class StravaApi:
         stav =  0 ohlasit - 1 prihlasit
         """
 
-        url = "https://app.strava.cz/api/objednejDenS5"
+        url = f"{self.base}/objednejDenS5"
 
         payload = {
             "cislo":self.cislo_jidelny,
@@ -286,11 +225,6 @@ class StravaApi:
             "ignoreCert":"false"
         }
 
-        headers = {
-            "Content-Type": "text/plain;charset=UTF-8",
-            "Cookie": self.cookie, 
-            "Referer": "https://app.strava.cz/"
-        }
 
         
         response = requests.post(url, headers=headers, json=payload)
@@ -318,21 +252,7 @@ class Public:
             "lang":"CZ","ignoreCert":False
         }
 
-        headers = {
-            "Content-Type": "text/plain;charset=UTF-8",
-            "Cookie": "multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%2C%22unsavedOrders%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A1767995670863%7D%7D; multiContext=%7B%22unsavedOrders%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A1767995670863%7D%7D", 
-            "Referer": "https://app.strava.cz/"
-        }
-
-    
-        response = requests.post(url, headers=headers, json=payload)
-
-        if response.status_code == 200:
-            data = response.json()
-            return json.dumps(data, indent=2, ensure_ascii=False)
-
-        else:
-            print(f"Chyba {response.status_code}: {response.text}")
+        return Get.call(url, payload)
 
 
 class Sid:
@@ -367,7 +287,8 @@ class Sid:
         if response.status_code == 200:
             data = response.json()
             sid = data.get("sid")
-            return sid
+            s5url = data.get("s5url")
+            return sid, s5url
 
         else:
             print(f"Chyba {response.status_code}: {response.text}")
