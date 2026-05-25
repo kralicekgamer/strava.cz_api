@@ -1,24 +1,6 @@
 import requests
 import json
-from action import Get, Post
-
-from action import (
-    StravaError,
-    JidelnaNenalezenaError,
-    ChybneHesloError,
-    BackendError,
-    ChybneSID
-)
-
-__all__ = [
-    "Api",
-    "Auth",
-    "StravaError",
-    "JidelnaNenalezenaError",
-    "ChybneHesloError",
-    "BackendError",
-    "ChybneSID"
-]
+from .action import Get, Post
 
 
 class Api:
