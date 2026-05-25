@@ -56,6 +56,8 @@ api = Api(
 | `getHistorieKlienta(date)` | Historie objednávek za měsíc | `date` = první den měsíce (např. `2025-01-01`) |
 | `getPlaby()` | Pohyby na účtu
 | `getMessages()` | Zprávy pro uživatele 
+| `getProtokol()` | Vrátí protokol
+| `getVydej()` | Vrátí list vydaných jídel.
 | `postJidlo(veta, stav)` | Přihlásit/odhlásit jídlo | `stav`: 1 přihlásit, 0 odhlásit |
 | `postDen(datum, stav)` | Přihlásit/odhlásit celý den | `datum` ve formátu `YYYY-MM-DD` |
 | `postOrders()` | Uložit změny objednávek | Nutné po `postJidlo`/`postDen` |

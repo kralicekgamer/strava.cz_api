@@ -151,6 +151,45 @@ class Api:
         return Get.call(url, payload)
 
 
+    def getProtokol(self):
+        """
+        Vrátí protokol.
+        """
+
+        url = f"{self.base}/getProtokol"
+
+        payload = {
+            "cislo": self.cislo_jidelny,
+            "s5url": self.s5url,
+            "sid": self.sid,
+            "ignoreCert": "false",
+            "lang": self.lang,
+            "uroven": "KP",
+            "evCislo": 0
+        }
+
+
+        return Get.call(url, payload)
+
+    def getVydej(self):
+        """
+        Vrátí list vydaných jídel.
+        """
+
+        url = f"{self.base}/vydej"
+
+        payload = {
+            "cislo": self.cislo_jidelny,
+            "s5url": self.s5url,
+            "sid": self.sid,
+            "ignoreCert": "false",
+            "lang": self.lang,
+        }
+
+
+        return Get.call(url, payload)
+
+
     def postJidlo(self, veta, stav):
         """
         Příhlásí nebo odhlásí jídlo.
@@ -194,7 +233,6 @@ class Api:
         self.cookie = Post.call(url, payload, self.cookie)
 
         return self.cookie
-
 
 
     def postDen(self, datum, stav):
