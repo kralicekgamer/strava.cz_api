@@ -35,12 +35,14 @@ class Post:
 
         response = requests.post(url, headers=headers, json=payload)
 
+        data = response.json()
+
         if response.status_code != 200:
             raise ConnectionError(f"Error: {response.status_code}: {response.text}")
 
         new_cookie = "; ".join([f"{k}={v}" for k, v in response.cookies.items()])
 
-        return new_cookie
+        return new_cookie, data
 
 
 

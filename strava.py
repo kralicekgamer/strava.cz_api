@@ -3,13 +3,12 @@ import json
 from action import Get, Post
 
 class Api:
-    def __init__(self, sid, s5url, cislo_jidelny, cookie="NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D"):
-        if len(sid) == 32:
-            self.sid = sid
-
-        else:
-            raise ValueError("Číslo musí být dlouhé 32 znaků")
+    def __init__(self, sid, s5url, cislo_jidelny, cookie="NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", lang="CZ"):
+        if lang not in ("CZ", "EN", "SK"):
+            raise ValueError("Podporované jazyky: EN, CZ, SK")
         
+        self.sid = sid
+        self.lang = lang
         self.cislo_jidelny = cislo_jidelny
         self.cookie = cookie
         self.s5url = s5url
@@ -21,7 +20,7 @@ class Api:
         """
         Vrátí dnešní jídelníček
         """
-        return json.loads(Api.getJidelnicekAll()).get("table0", [])
+        return json.loads(self.getJidelnicekAll()).get("table0", [])
 
 
     def getJidelnicekAll(self):
@@ -34,7 +33,7 @@ class Api:
             "cislo": self.cislo_jidelny,
             "sid": self.sid,
             "s5url": self.s5url,
-            "lang": "CZ",
+            "lang": self.lang,
             "konto": 0,
             "podminka": "",
             "ignoreCert": "false"
@@ -54,7 +53,7 @@ class Api:
             "url": self.s5url,
             "cislo": self.cislo_jidelny,
             "ignoreCert": "false",
-            "lang": "CZ",
+            "lang": self.lang,
             "getText": True,
             "checkVersion": True,
             "resetTables" :True,
@@ -83,7 +82,7 @@ class Api:
         payload = {
             "cislo": self.cislo_jidelny,
             "url": self.s5url,
-            "lang": "CZ",
+            "lang": self.lang,
             "ignoreCert": "false"
         }
 
@@ -107,7 +106,7 @@ class Api:
             "url": self.s5url,
             "cislo": self.cislo_jidelny,
             "datum": date,
-            "lang": "CZ",
+            "lang": self.lang,
             "ignoreCert": "false"
         }
 
@@ -126,7 +125,7 @@ class Api:
             "sid": self.sid,
             "url": self.s5url,
             "cislo": self.cislo_jidelny,
-            "lang": "CZ",
+            "lang": self.lang,
             "ignoreCert": "false"
         }
 
@@ -167,7 +166,7 @@ class Api:
             "url": self.s5url,
             "veta": veta, 
             "pocet": stav, # 0 ohlasit - 1 prihlasit
-            "lang": "CZ",
+            "lang": self.lang,
             "ignoreCert": "false"
         }
 
@@ -188,7 +187,7 @@ class Api:
             "sid": self.sid,
             "url": self.s5url,
             "xml": None,
-            "lang": "CZ",
+            "lang": self.lang,
             "ignoreCert": "false"
         }
         
@@ -214,7 +213,7 @@ class Api:
             "url": self.s5url,
             "datum": datum,
             "pocet": stav,
-            "lang": "CZ",
+            "lang": self.lang,
             "ignoreCert": "false"
         }
 
@@ -224,55 +223,83 @@ class Api:
 
 
 class Public:
-    def getJidelnicek(cislo_jidelny):
+    def getJidelnicek(cislo_jidelny, lang):
         """
         Získání public jídelníčků.
         """
+        if lang not in ("CZ", "EN", "SK"):
+            raise ValueError("Podporované jazyky: EN, CZ, SK")
+
         url = "https://app.strava.cz/api/jidelnicky"
 
         payload = {
-            "cislo":cislo_jidelny,
-            "s5url":"https://wss5.strava.cz/WSStravne5_3/WSStravne5.svc",
-            "lang":"CZ","ignoreCert":False
+            "cislo": cislo_jidelny,
+            "s5url": Public.getS5url(cislo_jidelny),
+            "lang": lang,
+            "ignoreCert": False
+        }
+
+        return Get.call(url, payload)
+
+    def getJidelna(cislo_jidelny):
+        """
+        Vrátí informaci o jídelně.
+        """
+        url = "https://app.strava.cz/api/s4Polozky"
+
+        payload = {
+            "cislo": cislo_jidelny,
+            "lang": "CZ",
+            "polozky": "V_NAZEV,V_ULICE,V_MESTO,V_PSC,V_TELEFON,V_UCET,V_EMAIL,V_URL,DATCAS_AKT,VERZE,URLWSDL_S-URL,GPSDELKA,GPSSIRKA,IGN_CERT,TEXT_ANON,LOGO"}
+
+        return Get.call(url, payload)
+
+    def getS5url(cislo_jidelny):
+        """
+        Pomocná metoda co vratí url jídelny.
+        """
+        return json.loads(Public.getJidelna(cislo_jidelny)).get("urlwsdl_s")[0]
+        
+
+    def getJidelny():
+        """
+        Vrátí seznam všech jídelen a jejich čísel.
+        """
+        url = "https://app.strava.cz/api/zarAMesta"
+        
+        payload = {
+            "lang":"CZ"
         }
 
         return Get.call(url, payload)
 
 
-class Sid:
-    def __init__(self, username, password, cislo_jidelny):
-        self.__username = username
-        self.__password = password
-        self.__cislo_jidelny = cislo_jidelny
-
-    
-    def getSid(self):
+class Auth:
+    def login(username, password, cislo_jidelny, lang="CZ", zustat_prihlasen=True, cookie="NEXT_LOCALE=cs"):
+        """
+        Vrátí data nutná pro další komunikaci.
+        """
+        if lang not in ("CZ", "EN", "SK"):
+            raise ValueError("Podporované jazyky: EN, CZ, SK")
+        
         url = "https://app.strava.cz/api/login"
 
         payload = {
-            "cislo":self.__cislo_jidelny,
-            "jmeno":self.__username,
-            "heslo":self.__password,
-            "zustatPrihlasen":True,
-            "environment":"W",
-            "lang":"CZ"
+            "cislo": cislo_jidelny,
+            "jmeno": username,
+            "heslo": password,
+            "zustatPrihlasen": zustat_prihlasen,
+            "environment": "W",
+            "lang": lang
         }
 
-        headers = {
-            "Content-Type": "text/plain;charset=UTF-8",
-            "Cookie": "NEXT_LOCALE=cs", 
-            "Referer": "https://app.strava.cz/"
-        }
+        return Post.call(url, payload, cookie)
 
+    def getCredentials(data):
+        """
+        Vyfiltruje SID a s5url z funkce login
+        """
 
-        response = requests.post(url, headers=headers, json=payload)
-
-
-        if response.status_code == 200:
-            data = response.json()
-            sid = data.get("sid")
-            s5url = data.get("s5url")
-            return sid, s5url
-
-        else:
-            print(f"Chyba {response.status_code}: {response.text}")
+        sid = data.get("sid")
+        s5url = data.get("s5url")
+        return sid, s5url
