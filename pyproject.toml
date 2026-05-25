@@ -2,9 +2,12 @@
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+where = ["."]
+
 [project]
-name = "strava.cz_api"
-version = "2.1"
+name = "strava-cz-api"
+version = "2.1.2"
 description = "Rest API for strava.cz."
 readme = "README.md"
 requires-python = ">=3.8"
