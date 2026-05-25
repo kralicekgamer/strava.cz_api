@@ -76,6 +76,7 @@ cookie_data = api.postOrders()
 Většina metod vrací JSON string. Metody `postJidlo`, `postDen` a `postOrders` vrací dvojici `(cookie, data)` z POST odpovědi. 
 
 ## Chyby a omezení
+- Error handling je dostupný přes výjimky, které lze importovat: `from strava import StravaError`.
 - Při neúspěšném požadavku se vyhazuje `ConnectionError`.
 - Některé jídelny mohou vyžadovat úpravy payloadů nebo cookie.
 

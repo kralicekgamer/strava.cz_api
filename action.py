@@ -1,6 +1,38 @@
 import requests
 import json
 
+class StravaError(Exception):
+    pass
+
+class JidelnaNenalezenaError(StravaError):
+    pass
+
+class ChybneHesloError(StravaError):
+    pass
+
+class BackendError(StravaError):
+    pass
+
+class ChybneSID(StravaError):
+    pass
+
+def raise_api_error(data):
+    if data.get("state") != "error":
+        return
+
+    number = data.get("number")
+    message = data.get("message", "Neznámá chyba")
+
+    exc = ERROR_MAP.get(number, StravaError)
+    raise exc(message)
+
+
+ERROR_MAP = {
+    6: JidelnaNenalezenaError,
+    15: ChybneSID,
+    13405: ChybneHesloError,
+    3002: BackendError,
+}
 
 class Get:
     @staticmethod
@@ -12,12 +44,11 @@ class Get:
         }):
 
         response = requests.post(url, headers=headers, json=payload)
-
-        if response.status_code != 200:
-            raise ConnectionError(f"Error: {response.status_code}: {response.text}")
-
             
         data = response.json()
+
+        raise_api_error(data)
+
         return json.dumps(data, indent=2, ensure_ascii=False)
             
 
@@ -37,8 +68,7 @@ class Post:
 
         data = response.json()
 
-        if response.status_code != 200:
-            raise ConnectionError(f"Error: {response.status_code}: {response.text}")
+        raise_api_error(data)
 
         new_cookie = "; ".join([f"{k}={v}" for k, v in response.cookies.items()])
 

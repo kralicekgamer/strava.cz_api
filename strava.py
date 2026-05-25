@@ -2,6 +2,25 @@ import requests
 import json
 from action import Get, Post
 
+from action import (
+    StravaError,
+    JidelnaNenalezenaError,
+    ChybneHesloError,
+    BackendError,
+    ChybneSID
+)
+
+__all__ = [
+    "Api",
+    "Auth",
+    "StravaError",
+    "JidelnaNenalezenaError",
+    "ChybneHesloError",
+    "BackendError",
+    "ChybneSID"
+]
+
+
 class Api:
     def __init__(self, sid, s5url, cislo_jidelny, cookie="NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D", lang="CZ"):
         if lang not in ("CZ", "EN", "SK"):
