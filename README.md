@@ -79,3 +79,7 @@ Většina metod vrací JSON string. Metody `postJidlo`, `postDen` a `postOrders`
 
 ## Příklady
 Ukázkové skripty najdeš ve složce `./examples`.
+
+## Demo
+- Demo uživatele si lze vytvořit na https://www.strava.cz/strava/Stravnik/Demo
+- Poté se lze přihlásit na https://app.strava.cz/ na jídelně `0000`
