@@ -5,7 +5,7 @@ Toto je **neoficiální** REST api pro stravu.cz. V tomto dokumentu je popsáno 
 
 ## Instalace
 ```bash
-pip install strava_cz_api.cz_api
+pip install strava_cz_api
 ```
 
 ## Autentizace
