@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 where = ["."]
 
 [project]
-name = "strava-cz-api"
+name = "strava_cz_api"
 version = "2.1.2"
 description = "Rest API for strava.cz."
 readme = "README.md"

@@ -5,14 +5,14 @@ Toto je **neoficiální** REST api pro stravu.cz. V tomto dokumentu je popsáno 
 
 ## Instalace
 ```bash
-pip install strava.cz_api
+pip install strava_cz_api.cz_api
 ```
 
 ## Autentizace
 K API endpointům potřebuješ **SID** a **s5url**. Můžeš si je získat sám z dev tools v prohlížeči, ale nejlepší cesta je pomocí metod: `Auth.login()` a `Auth.getCredentials()`:
 
 ```py
-from strava import Auth
+from strava_cz_api import Auth
 
 cookie, data = Auth.login("demo", "demo", "0000")
 sid, s5url = Auth.getCredentials(data)
@@ -24,7 +24,7 @@ sid, s5url = Auth.getCredentials(data)
 
 ## Inicializace API
 ```py
-from strava import Api
+from strava_cz_api import Api
 
 api = Api(
     sid="00000000000000000000000000000000",
@@ -76,7 +76,7 @@ cookie_data = api.postOrders()
 Většina metod vrací JSON string. Metody `postJidlo`, `postDen` a `postOrders` vrací dvojici `(cookie, data)` z POST odpovědi. 
 
 ## Chyby a omezení
-- Error handling je dostupný přes výjimky, které lze importovat: `from strava import StravaError`.
+- Error handling je dostupný přes výjimky, které lze importovat: `from strava_cz_api import StravaError`.
 - Při neúspěšném požadavku se vyhazuje `ConnectionError`.
 - Některé jídelny mohou vyžadovat úpravy payloadů nebo cookie.
 

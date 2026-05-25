@@ -1,6 +1,6 @@
 # made by OpiKula
 
-from strava import Api, Auth, StravaError
+from strava_cz_api import Api, Auth, StravaError
 import getpass
 
 # Ziskame od uzivatele credentials
