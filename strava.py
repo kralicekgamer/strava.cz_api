@@ -1,6 +1,6 @@
 import requests
 import json
-from action import Get
+from action import Get, Post
 
 class Api:
     def __init__(self, sid, s5url, cislo_jidelny, cookie="NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D"):
@@ -50,15 +50,15 @@ class Api:
         url = f"{self.base}/nactiVlastnostiPA"
 
         payload = {
-            "sid":self.sid,
-            "url":"https://wss5.strava.cz/WSStravne5_3/WSStravne5.svc",
-            "cislo":self.cislo_jidelny,
-            "ignoreCert":"false",
-            "lang":"CZ",
-            "getText":True,
-            "checkVersion":True,
-            "resetTables":True,
-            "frontendFunction":"refreshInformations"
+            "sid": self.sid,
+            "url": self.s5url,
+            "cislo": self.cislo_jidelny,
+            "ignoreCert": "false",
+            "lang": "CZ",
+            "getText": True,
+            "checkVersion": True,
+            "resetTables" :True,
+            "frontendFunction": "refreshInformations"
         }
 
 
@@ -66,20 +66,25 @@ class Api:
     
 
     def getUsername(self):
-        """Vrátí uživatelské jméno"""
+        """
+        Vrátí uživatelské jméno
+        """
 
         return json.loads(self.getInfo()).get("id")
 
 
     def getJidelna(self):
-        """Ziska info o jidelne"""
+        """
+        Získá informaci o jídělně
+        """
+
         url = f"{self.base}/jidelnaS5"
 
         payload = {
             "cislo": self.cislo_jidelny,
-            "url":"https://wss5.strava.cz/WSStravne5_3/WSStravne5.svc",
-            "lang":"CZ",
-            "ignoreCert":"false"
+            "url": self.s5url,
+            "lang": "CZ",
+            "ignoreCert": "false"
         }
 
 
@@ -88,21 +93,22 @@ class Api:
 
     def getHistorieKlienta(self, date):
         """
-        Ziska info o historii objednavek.
+        Získá info o historii objednávek.
         
         date = počáteční datum měsíce. 
         2025-01-01 - leden
         2025-12-01 - prosinec
         """
+
         url = f"{self.base}/historieKlienta"
 
         payload = {
-            "sid":self.sid,
-            "url":"https://wss5.strava.cz/WSStravne5_3/WSStravne5.svc",
-            "cislo":self.cislo_jidelny,
+            "sid": self.sid,
+            "url": self.s5url,
+            "cislo": self.cislo_jidelny,
             "datum": date,
-            "lang":"CZ",
-            "ignoreCert":"false"
+            "lang": "CZ",
+            "ignoreCert": "false"
         }
 
 
@@ -110,15 +116,18 @@ class Api:
 
 
     def getPlaby(self):
-        """Vrati platby na uctu."""
+        """
+        Vrátí platby na účtu.
+        """
+
         url = f"{self.base}/platby"
 
         payload = {
-            "sid":self.sid,
-            "url":"https://wss5.strava.cz/WSStravne5_3/WSStravne5.svc",
-            "cislo":self.cislo_jidelny,
-            "lang":"CZ",
-            "ignoreCert":"false"
+            "sid": self.sid,
+            "url": self.s5url,
+            "cislo": self.cislo_jidelny,
+            "lang": "CZ",
+            "ignoreCert": "false"
         }
 
 
@@ -126,7 +135,10 @@ class Api:
 
 
     def getMessages(self):
-        """Vrati zpravy poslane uzivatelovi"""
+        """
+        Vratí zprávy poslané uživatelovi.
+        """
+
         url = f"{self.base}/messagesGetList"
 
         payload = {
@@ -137,106 +149,78 @@ class Api:
             "typZpravy": ""
         }
 
-        
-
         return Get.call(url, payload)
 
 
     def postJidlo(self, veta, stav):
         """
-        !! NUTNE ZAVOLAT postOrders !! - vice v dokumentaci.
-        Prihlasi/odhlasi jidlo
+        Příhlásí nebo odhlásí jídlo.
         
-        veta = cislo policka/jidla - napr v getJidelnicek()
-        stav =  0 ohlasit - 1 prihlasit
+        veta = číslo políčka/jídla - jde získat např. z getJidelnicek()
+        stav =  0 odhlásit - 1 přihlásit
         """
         url = f"{self.base}/pridejJidloS5"
 
         payload = {
             "cislo": self.cislo_jidelny,
             "sid": self.sid,
-            "url":"https://wss5.strava.cz/WSStravne5_3/WSStravne5.svc",
+            "url": self.s5url,
             "veta": veta, 
             "pocet": stav, # 0 ohlasit - 1 prihlasit
-            "lang":"CZ",
-            "ignoreCert":"false"
+            "lang": "CZ",
+            "ignoreCert": "false"
         }
 
+        self.cookie = Post.call(url, payload, self.cookie)
 
-        
-        response = requests.post(url, headers=headers, json=payload)
-
-
-        if response.status_code == 200:
-            self.cookie = "; ".join([f"{k}={v}" for k, v in response.cookies.items()])
-        
-            data = response.json()
-            return json.dumps(data, indent=2, ensure_ascii=False)
-    
-        else:
-            print(f"Chyba {response.status_code}: {response.text}")
-            return None
+        return self.cookie
 
 
     def postOrders(self):
-        """Ulozi objednavky"""
+        """
+        Uloží objednávky
+        """
         url = f"{self.base}/saveOrders"
 
+
         payload = {
-            "cislo":self.cislo_jidelny,
-            "sid":self.sid,
-            "url":"https://wss5.strava.cz/WSStravne5_3/WSStravne5.svc",
-            "xml":None,
-            "lang":"CZ",
-            "ignoreCert":"false"
+            "cislo": self.cislo_jidelny,
+            "sid": self.sid,
+            "url": self.s5url,
+            "xml": None,
+            "lang": "CZ",
+            "ignoreCert": "false"
         }
         
+        self.cookie = Post.call(url, payload, self.cookie)
 
+        return self.cookie
 
-        response = requests.post(url, headers=headers, json=payload)
-
-
-        if response.status_code == 200:
-            data = response.json()
-            return json.dumps(data, indent=2, ensure_ascii=False)
-
-        else:
-            print(f"Chyba {response.status_code}: {response.text}")
 
 
     def postDen(self, datum, stav):
         """
-        !! NUTNE ZAVOLAT postOrders !! - vice v dokumentaci.
-        Prihlasi/odhlasi den
+        Přihlásí nebo ohlásí celý den.
         
-        datum = datum dne jaky chceme odhlasit. 2025-12-30
+        datum = datum dne jaký chceme odhlásit. 2025-12-30
         stav =  0 ohlasit - 1 prihlasit
         """
 
         url = f"{self.base}/objednejDenS5"
 
         payload = {
-            "cislo":self.cislo_jidelny,
-            "sid":self.sid,
-            "url":"https://wss5.strava.cz/WSStravne5_3/WSStravne5.svc",
-            "datum":datum,
-            "pocet":stav,
-            "lang":"CZ",
-            "ignoreCert":"false"
+            "cislo": self.cislo_jidelny,
+            "sid": self.sid,
+            "url": self.s5url,
+            "datum": datum,
+            "pocet": stav,
+            "lang": "CZ",
+            "ignoreCert": "false"
         }
 
+        self.cookie = Post.call(url, payload, self.cookie)
 
-        
-        response = requests.post(url, headers=headers, json=payload)
-
-        if response.status_code == 200:
-            self.cookie = "; ".join([f"{k}={v}" for k, v in response.cookies.items()])
-        
-            data = response.json()
-            return json.dumps(data, indent=2, ensure_ascii=False)
-    
-        else:
-            print(f"Chyba {response.status_code}: {response.text}")
+        return self.cookie
 
 
 class Public:
