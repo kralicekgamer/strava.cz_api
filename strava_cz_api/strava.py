@@ -1,6 +1,6 @@
 import requests
 import json
-from .action import Get, Post
+from .action import Get, Post, ResetCookie
 
 
 class Api:
@@ -57,7 +57,7 @@ class Api:
             "lang": self.lang,
             "getText": True,
             "checkVersion": True,
-            "resetTables" :True,
+            "resetTables" : False,
             "frontendFunction": "refreshInformations"
         }
 
@@ -172,6 +172,7 @@ class Api:
 
         return Get.call(url, payload)
 
+
     def getVydej(self):
         """
         Vrátí list vydaných jídel.
@@ -261,7 +262,29 @@ class Api:
         return self.cookie
 
 
+    def resetChanges(self):
+        """
+        Resetuje neuložené změny v komunikaci. Může trvat dlouho!
+        """
+        url = f"{self.base}/nactiVlastnostiPA"
+
+        payload = {
+            "sid": self.sid,
+            "url": self.s5url,
+            "cislo": self.cislo_jidelny,
+            "ignoreCert": "false",
+            "lang": self.lang,
+            "getText": True,
+            "checkVersion": True,
+            "resetTables" : True,
+            "frontendFunction": "refreshInformations"
+        }
+
+        return ResetChanges.call(url, payload, self.cookie)
+
+
 class Public:
+    @staticmethod
     def getJidelnicek(cislo_jidelny, lang):
         """
         Získání public jídelníčků.
@@ -280,6 +303,7 @@ class Public:
 
         return Get.call(url, payload)
 
+    @staticmethod
     def getJidelna(cislo_jidelny):
         """
         Vrátí informaci o jídelně.
@@ -293,6 +317,8 @@ class Public:
 
         return Get.call(url, payload)
 
+
+    @staticmethod
     def getS5url(cislo_jidelny):
         """
         Pomocná metoda co vratí url jídelny.
@@ -300,6 +326,7 @@ class Public:
         return json.loads(Public.getJidelna(cislo_jidelny)).get("urlwsdl_s")[0]
         
 
+    @staticmethod
     def getJidelny():
         """
         Vrátí seznam všech jídelen a jejich čísel.
@@ -314,6 +341,7 @@ class Public:
 
 
 class Auth:
+    @staticmethod
     def login(username, password, cislo_jidelny, lang="CZ", zustat_prihlasen=True, cookie="NEXT_LOCALE=cs"):
         """
         Vrátí data nutná pro další komunikaci.
@@ -334,6 +362,8 @@ class Auth:
 
         return Post.call(url, payload, cookie)
 
+
+    @staticmethod
     def getCredentials(data):
         """
         Vyfiltruje SID a s5url z funkce login

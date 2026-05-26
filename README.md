@@ -50,7 +50,7 @@ api = Api(
 | --- | --- | --- |
 | `getJidelnicekToday()` | Dnešní jídelníček | Vrací list (`table0`) |
 | `getJidelnicekAll()` | Kompletní jídelníček 
-| `getInfo()` | Informace o uživateli
+| `getInfo()` | Informace o uživateli | Upravený payload. Nenačítá nové cookies. Může trvat dlouho (2 - 3 s)
 | `getUsername()` | Uživatelské jméno | Vytahuje z `getInfo()` |
 | `getJidelna()` | Informace o jídelně 
 | `getHistorieKlienta(date)` | Historie objednávek za měsíc | `date` = první den měsíce (např. `2025-01-01`) |
@@ -61,6 +61,7 @@ api = Api(
 | `postJidlo(veta, stav)` | Přihlásit/odhlásit jídlo | `stav`: 1 přihlásit, 0 odhlásit |
 | `postDen(datum, stav)` | Přihlásit/odhlásit celý den | `datum` ve formátu `YYYY-MM-DD` |
 | `postOrders()` | Uložit změny objednávek | Nutné po `postJidlo`/`postDen` |
+| `resetChanges()` | Resetuje neuložené změny v komunikaci. | Dobré pro zrušení změn pří objednávkách
 
 ## Objednávky – správný postup
 Změny objednávek se ukládají ve dvou krocích:
