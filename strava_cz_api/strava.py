@@ -1,6 +1,6 @@
 import requests
 import json
-from .action import Get, Post, ResetCookie
+from .action import Get, Post, ResetChanges
 
 
 class Api:
