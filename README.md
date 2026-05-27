@@ -63,6 +63,16 @@ api = Api(
 | `postOrders()` | Uložit změny objednávek | Nutné po `postJidlo`/`postDen` |
 | `resetChanges()` | Resetuje neuložené změny v komunikaci. | Dobré pro zrušení změn pří objednávkách
 
+## Filtr (Pre-relase)
+Filtr existuje, ale je to **pre‑release**: může obsahovat chyby a bude se dál rozšiřovat. Lze ho importovat (`from strava_cz_api import Filter`), ale zatím není zaručeno, že všude funguje správně.
+
+```py
+from strava_cz_api import Filter
+
+filtrovano = Filter.filter_json(["veta"], api.getJidelnicekAll())
+print(filtrovano)
+```
+
 ## Objednávky – správný postup
 Změny objednávek se ukládají ve dvou krocích:
 1. Provedení změn (`postJidlo` nebo `postDen`)
@@ -83,6 +93,61 @@ Většina metod vrací JSON string. Metody `postJidlo`, `postDen` a `postOrders`
 
 ## Příklady
 Ukázkové skripty najdeš ve složce `./examples`.
+
+## Json struktura 
+```json
+{
+    "tableX": [
+        {
+            "id": 0,
+            "datum": "30.06.2026", // datum
+            "druh_popis": "Polévka", // část
+            "druh_chod": "Oběd", // chod
+            "nazev": "Polévka 1", // název chodu (oběd č. 1)
+            "popis": "Snídaně", // popis chodu
+            "delsiPopis": "", // delší popis chodu
+            "zakazaneAlergeny": null, // ??
+            "alergeny_text": "", // alergeny
+            "alergeny": [], // alergeny
+            "chod": "C", // číslo chodu (A = snídaně, B, C)
+            "druh": "OB", // druh chodu ve zkratce
+            "cena": "45.00", // cena
+            "polevka": "N", // zda pole je polévka (je v ceně)
+            "pocet": 1, // 1 = přihlášeno, 0 = odhlášeno
+            "veta": "172", // id políčka
+            "vetaDieta": "196", // ??
+            "omezeniObj": { // ???
+                "den": "",
+                "obj": "",
+                "zm": "", 
+                "bur": "C" 
+            },
+            "burza": { // ???
+                "zmena": "0",
+                "ostatni": "0",
+                "nabidka": "0",
+                "poptavka": "0"
+            },
+            "vydejniMisto": { // kde se vydává oběd (škola má více jídelních budov)
+                "misto": "2",
+                "mista": "2"
+            },
+            "diety": { // ??
+                "dieta": "",
+                "diety": ""
+            },
+            "zkratkaProduktu": "OB", // zkratka produktu (identické jako chod, u polévky chybí??)
+            "cisloJidelnicku": "1", // ??
+            "multipleNazev": "1NOběd č. 1COB", // ??
+            "version": 5, // ??
+            "casKonec": "2026-06-29T11:50:00", // do kdy lze prihlasit
+            "casOdhlaseni": "2026-06-29T11:50:00", // do kdy lze prihlasit
+            "obrazky": []
+        },
+        ...
+    ]
+}
+```
 
 ## Demo
 - Demo uživatele si lze vytvořit na https://www.strava.cz/strava/Stravnik/Demo
