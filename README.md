@@ -8,6 +8,13 @@ Toto je **neoficiální** REST api pro stravu.cz. V tomto dokumentu je popsáno 
 pip install strava_cz_api
 ```
 
+| Verze | Stav | Poznámka |
+| --- | --- | --- |
+| **1.X** | ❌ Legacy | Stará verze bez error handlingu. |
+| **2.X** | ✅ Stable | Dobrá verze. |
+| **2.3.1** | ⭐ Doporučená | Top verze. |
+| **2.4** | 🚧 Pre-release | Může obsahovat chyby v class Filter. Jinak stejně stabilní jako **2.3.1** |
+
 ## Autentizace
 K API endpointům potřebuješ **SID** a **s5url**. Můžeš si je získat sám z dev tools v prohlížeči, ale nejlepší cesta je pomocí metod: `Auth.login()` a `Auth.getCredentials()`:
 
