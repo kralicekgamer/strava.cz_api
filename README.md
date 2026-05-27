@@ -63,7 +63,7 @@ api = Api(
 | `postOrders()` | Uložit změny objednávek | Nutné po `postJidlo`/`postDen` |
 | `resetChanges()` | Resetuje neuložené změny v komunikaci. | Dobré pro zrušení změn pří objednávkách
 
-## Filtr (Pre-relase)
+## Filtr
 Filtr existuje, ale je to **pre‑release**: může obsahovat chyby a bude se dál rozšiřovat. Lze ho importovat (`from strava_cz_api import Filter`), ale zatím není zaručeno, že všude funguje správně.
 
 ```py
@@ -140,14 +140,15 @@ Ukázkové skripty najdeš ve složce `./examples`.
             "cisloJidelnicku": "1", // ??
             "multipleNazev": "1NOběd č. 1COB", // ??
             "version": 5, // ??
-            "casKonec": "2026-06-29T11:50:00", // do kdy lze prihlasit
-            "casOdhlaseni": "2026-06-29T11:50:00", // do kdy lze prihlasit
+            "casKonec": "2026-06-29T11:50:00", // do kdy lze přihlásit
+            "casOdhlaseni": "2026-06-29T11:50:00", // do kdy lze přihlásit
             "obrazky": []
         },
         ...
     ]
 }
 ```
+- Mnoho polí není vyplněno. Zda víte co to je, doplňte to nebo mě kontaktujte.
 
 ## Demo
 - Demo uživatele si lze vytvořit na https://www.strava.cz/strava/Stravnik/Demo
