@@ -17,6 +17,9 @@ class ChybneSID(StravaError):
     pass
 
 def raise_api_error(data):
+    if not isinstance(data, dict):
+        return
+    
     if data.get("state") != "error":
         return
 
@@ -72,7 +75,7 @@ class Post:
 
         new_cookie = "; ".join([f"{k}={v}" for k, v in response.cookies.items()])
 
-        return new_cookie, data
+        return new_cookie
 
 
 class ResetChanges:

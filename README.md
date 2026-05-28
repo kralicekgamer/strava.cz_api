@@ -10,10 +10,9 @@ pip install strava_cz_api
 
 | Verze | Stav | Poznámka |
 | --- | --- | --- |
-| **1.X** | ❌ Legacy | Stará verze bez error handlingu. |
-| **2.X** | ✅ Stable | Dobrá verze. |
-| **2.3.1** | ⭐ Doporučená | Top verze. |
-| **2.4** | 🚧 Pre-release | Může obsahovat chyby v class Filter. Jinak stejně stabilní jako **2.3.1** |
+| **1.X** | ❌ Legacy | Stará verze bez error handlingu. Funkční :D |
+| **2.0 - 2.4.1** | ❌ Unstable | Chyba v postOrders. |
+| **2.5** | ✅ Stable | Stabilní verze |
 
 ## Autentizace
 K API endpointům potřebuješ **SID** a **s5url**. Můžeš si je získat sám z dev tools v prohlížeči, ale nejlepší cesta je pomocí metod: `Auth.login()` a `Auth.getCredentials()`:
@@ -57,7 +56,7 @@ api = Api(
 | --- | --- | --- |
 | `getJidelnicekToday()` | Dnešní jídelníček | Vrací list (`table0`) |
 | `getJidelnicekAll()` | Kompletní jídelníček 
-| `getInfo()` | Informace o uživateli | Upravený payload. Nenačítá nové cookies. Může trvat dlouho (2 - 3 s)
+| `getInfo()` | Informace o uživateli | Upravený payload.
 | `getUsername()` | Uživatelské jméno | Vytahuje z `getInfo()` |
 | `getJidelna()` | Informace o jídelně 
 | `getHistorieKlienta(date)` | Historie objednávek za měsíc | `date` = první den měsíce (např. `2025-01-01`) |
@@ -68,7 +67,7 @@ api = Api(
 | `postJidlo(veta, stav)` | Přihlásit/odhlásit jídlo | `stav`: 1 přihlásit, 0 odhlásit |
 | `postDen(datum, stav)` | Přihlásit/odhlásit celý den | `datum` ve formátu `YYYY-MM-DD` |
 | `postOrders()` | Uložit změny objednávek | Nutné po `postJidlo`/`postDen` |
-| `resetChanges()` | Resetuje neuložené změny v komunikaci. | Dobré pro zrušení změn pří objednávkách
+| `resetChanges()` | Resetuje neuložené změny v komunikaci. | Dobré pro zrušení změn při objednávkách
 
 ## Filtr
 Filtr existuje, ale je to **pre‑release**: může obsahovat chyby a bude se dál rozšiřovat. Lze ho importovat (`from strava_cz_api import Filter`), ale zatím není zaručeno, že všude funguje správně.
@@ -110,7 +109,7 @@ Ukázkové skripty najdeš ve složce `./examples`.
             "datum": "30.06.2026", // datum
             "druh_popis": "Polévka", // část
             "druh_chod": "Oběd", // chod
-            "nazev": "Polévka 1", // název chodu (oběd č. 1)
+            "nazev": "Polévka 1", // název chodu (oběd č. 1, Řízek)
             "popis": "Snídaně", // popis chodu
             "delsiPopis": "", // delší popis chodu
             "zakazaneAlergeny": null, // ??
