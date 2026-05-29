@@ -1,6 +1,6 @@
 import requests
 import json
-from .action import Get, Post, ResetChanges
+from .action import Get, Post
 
 
 class Api:
@@ -115,7 +115,7 @@ class Api:
         return Get.call(url, payload)
 
 
-    def getPlaby(self):
+    def getPlatby(self):
         """
         Vrátí platby na účtu.
         """
@@ -211,9 +211,9 @@ class Api:
             "ignoreCert": "false"
         }
 
-        self.cookie = Post.call(url, payload, self.cookie)
+        data, self.cookie = Post.call(url, payload, self.cookie)
 
-        return self.cookie
+        return data, self.cookie
 
 
     def postOrders(self):
@@ -232,9 +232,9 @@ class Api:
             "ignoreCert": "false"
         }
         
-        self.cookie = Post.call(url, payload, self.cookie)
+        data, self.cookie = Post.call(url, payload, self.cookie)
 
-        return self.cookie
+        return data, self.cookie
 
 
     def postDen(self, datum, stav):
@@ -257,14 +257,14 @@ class Api:
             "ignoreCert": "false"
         }
 
-        self.cookie = Post.call(url, payload, self.cookie)
+        data, self.cookie = Post.call(url, payload, self.cookie)
 
-        return self.cookie
+        return data, self.cookie
 
 
     def resetChanges(self):
         """
-        Resetuje neuložené změny v komunikaci. Může trvat dlouho!
+        Resetuje neuložené změny v komunikaci. Vrací (data, cookie). Může trvat dlouho!
         """
         url = f"{self.base}/nactiVlastnostiPA"
 
@@ -280,7 +280,9 @@ class Api:
             "frontendFunction": "refreshInformations"
         }
 
-        return ResetChanges.call(url, payload, self.cookie)
+        data, self.cookie = Post.call(url, payload, self.cookie)
+
+        return data, self.cookie
 
 
 class Public:
@@ -368,7 +370,7 @@ class Auth:
         """
         Vyfiltruje SID a s5url z funkce login
         """
-
-        sid = data.get("sid")
-        s5url = data.get("s5url")
+        parsed_data = json.loads(data) if isinstance(data, str) else data
+        sid = parsed_data.get("sid")
+        s5url = parsed_data.get("s5url")
         return sid, s5url

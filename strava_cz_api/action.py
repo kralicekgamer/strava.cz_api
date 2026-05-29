@@ -16,6 +16,10 @@ class BackendError(StravaError):
 class ChybneSID(StravaError):
     pass
 
+class NelzePrihlasit(StravaError):
+    pass
+
+
 def raise_api_error(data):
     if not isinstance(data, dict):
         return
@@ -33,6 +37,7 @@ def raise_api_error(data):
 ERROR_MAP = {
     6: JidelnaNenalezenaError,
     15: ChybneSID,
+    35: NelzePrihlasit,
     13405: ChybneHesloError,
     3002: BackendError,
 }
@@ -75,24 +80,4 @@ class Post:
 
         new_cookie = "; ".join([f"{k}={v}" for k, v in response.cookies.items()])
 
-        return new_cookie
-
-
-class ResetChanges:
-    @staticmethod
-    def call(url, payload, cookie, headers=None):
-        if headers is None:
-            headers = {
-                "Content-Type": "text/plain;charset=UTF-8",
-                "Cookie": cookie,
-                "Referer": "https://app.strava.cz/"
-            }
-
-        response = requests.post(url, headers=headers, json=payload)
-        data = response.json()
-
-        raise_api_error(data)
-
-        new_cookie = response.cookies.get_dict()
-
-        return new_cookie
+        return json.dumps(data, indent=2, ensure_ascii=False), new_cookie

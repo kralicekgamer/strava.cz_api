@@ -1,4 +1,5 @@
-from strava import Api, Auth
+
+from strava_cz_api import Api, Auth
 import getpass
 import json
 
@@ -6,7 +7,7 @@ username = input("Zadej uzivatelske jmeno: ").strip()
 password = getpass.getpass("Zadej heslo: ")
 cislo_jidelny = input("Zadej cislo jidelny: ").strip()
 
-_cookie, data = Auth.login(username, password, cislo_jidelny)
+data, _ = Auth.login(username, password, cislo_jidelny)
 sid, s5url = Auth.getCredentials(data)
 
 api = Api(sid, s5url, cislo_jidelny)

@@ -10,9 +10,10 @@ pip install strava_cz_api
 
 | Verze | Stav | Poznámka |
 | --- | --- | --- |
-| **1.X** | ❌ Legacy | Stará verze bez error handlingu. Funkční :D |
-| **2.0 - 2.4.1** | ❌ Unstable | Chyba v postOrders. |
-| **2.5** | ✅ Stable | Stabilní verze |
+| **1.X** | ❌ | Stará verze bez error handlingu. Funkční :D |
+| **2.0 - 2.4.1** | ⚠️ | Chyba v postOrders. |
+| **2.5** | ⚠️ | Menší bug při vracení cookies a v POST requestech. |
+| **2.5.1** | ✅ | Opraveny známé bugy. |
 
 ## Autentizace
 K API endpointům potřebuješ **SID** a **s5url**. Můžeš si je získat sám z dev tools v prohlížeči, ale nejlepší cesta je pomocí metod: `Auth.login()` a `Auth.getCredentials()`:
@@ -20,7 +21,7 @@ K API endpointům potřebuješ **SID** a **s5url**. Můžeš si je získat sám 
 ```py
 from strava_cz_api import Auth
 
-cookie, data = Auth.login("demo", "demo", "0000")
+data, _ = Auth.login("demo", "demo", "0000")
 sid, s5url = Auth.getCredentials(data)
 ```
 
@@ -70,7 +71,7 @@ api = Api(
 | `resetChanges()` | Resetuje neuložené změny v komunikaci. | Dobré pro zrušení změn při objednávkách
 
 ## Filtr
-Filtr existuje, ale je to **pre‑release**: může obsahovat chyby a bude se dál rozšiřovat. Lze ho importovat (`from strava_cz_api import Filter`), ale zatím není zaručeno, že všude funguje správně.
+Filtr pro data existuje, ale bude se dále rozšiřovat. Lze ho importovat (`from strava_cz_api import Filter`), ale zatím není zaručeno, že všude funguje správně.
 
 ```py
 from strava_cz_api import Filter
@@ -80,22 +81,33 @@ print(filtrovano)
 ```
 
 ## Objednávky – správný postup
+> ⚠️ Postup u každé jídelný se může lišit. 
 Změny objednávek se ukládají ve dvou krocích:
 1. Provedení změn (`postJidlo` nebo `postDen`)
 2. Uložení (`postOrders`)
 
 ```py
-cookie_data = api.postJidlo(5, 1)
-cookie_data = api.postOrders()
+data, cookie = api.postJidlo(5, 1)
+
+data, cookie = api.postOrders()
+```
+
+Nebo lze resetovat změny:
+```py
+data, cookie = api.resetChanges()
 ```
 
 ## Návratové hodnoty
-Většina metod vrací JSON string. Metody `postJidlo`, `postDen` a `postOrders` vrací dvojici `(cookie, data)` z POST odpovědi. 
+- Většina metod vrací JSON string.
+- POST metody `postJidlo()`, `postDen()`, `postOrders()`, `resetChanges()` a `Auth.login()` vrací **dvojici `(data, cookie)`** z POST odpovědi.
+  - `data` - JSON response z API
+  - `cookie` - nový cookie pro další požadavky (automaticky se aktualizuje v Api objektu) 
 
-## Chyby a omezení
+> ⚠️ Je tedy potřeba buďto nepoužívat návratové hodnoty nebo jednu z nich vrátit do prázdné proměnné (např. _). Pokud vrátíte do jedné hodnoty vrátí se vám tupple a kód pravděpodobně někde spadne.
+
+## Chyby
 - Error handling je dostupný přes výjimky, které lze importovat: `from strava_cz_api import StravaError`.
 - Při neúspěšném požadavku se vyhazuje `ConnectionError`.
-- Některé jídelny mohou vyžadovat úpravy payloadů nebo cookie.
 
 ## Příklady
 Ukázkové skripty najdeš ve složce `./examples`.
@@ -159,3 +171,4 @@ Ukázkové skripty najdeš ve složce `./examples`.
 ## Demo
 - Demo uživatele si lze vytvořit na https://www.strava.cz/strava/Stravnik/Demo
 - Poté se lze přihlásit na https://app.strava.cz/ na jídelně `0000`
+- Prosím nepoužívejte `demo` `demo`. Pak je to zablokované a nefunguje to :D.

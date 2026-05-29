@@ -10,7 +10,7 @@ jidelna = input("Zadej zde číslo jídelny: ")
 
 # Poslani post requestu a getnuti SID a s5url
 try:
-    cookie, data = Auth.login(username, password, jidelna)
+    data, _ = Auth.login(username, password, jidelna)
 
 except StravaError:
     print("Chybné heslo")
