@@ -3,9 +3,12 @@ from .filter import Filter
 from .action import (
     StravaError,
     JidelnaNenalezenaError,
+    ChybneSID,
+    NelzePrihlasit,
     ChybneHesloError,
     BackendError,
-    ChybneSID
+    ChybnyUzivatel,
+    AuthError
 )
 
 __all__ = [
@@ -13,7 +16,10 @@ __all__ = [
     "Auth",
     "StravaError",
     "JidelnaNenalezenaError",
+    "ChybneSID",
+    "NelzePrihlasit",
     "ChybneHesloError",
     "BackendError",
-    "ChybneSID"
+    "ChybnyUzivatel",
+    "AuthError"
 ]

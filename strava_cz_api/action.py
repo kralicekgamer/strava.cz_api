@@ -58,14 +58,15 @@ ERROR_MAP = {
 
 class Get:
     @staticmethod
-    def call(url, payload, headers=
-        {
-            "Content-Type": "text/plain;charset=UTF-8",
-            "Cookie": "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D",
-            "Referer": "https://app.strava.cz/"
-        }):
+    def call(url, payload, headers=None):
+        if headers is None:
+            headers = {
+                "Content-Type": "text/plain;charset=UTF-8",
+                "Cookie": "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D",
+                "Referer": "https://app.strava.cz/"
+            }
 
-        response = requests.post(url, headers=headers, json=payload)
+        response = requests.get(url, headers=headers, json=payload)
             
         data = response.json()
 

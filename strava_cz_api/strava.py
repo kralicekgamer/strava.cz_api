@@ -75,7 +75,7 @@ class Api:
 
     def getJidelna(self):
         """
-        Získá informaci o jídělně
+        Získá informaci o jídelně
         """
 
         url = f"{self.base}/jidelnaS5"
@@ -136,7 +136,7 @@ class Api:
 
     def getMessages(self):
         """
-        Vratí zprávy poslané uživatelovi.
+        Vrátí zprávy poslané uživatelovi.
         """
 
         url = f"{self.base}/messagesGetList"

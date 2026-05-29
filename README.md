@@ -11,9 +11,9 @@ pip install strava_cz_api
 | Verze | Stav | Poznámka |
 | --- | --- | --- |
 | **1.X** | ❌ | Stará verze bez error handlingu. Funkční :D |
-| **2.0 - **2.5** | ⚠️ | Mnoho bugů v POST requestech a práci s cookies. |
-| **2.5.1** | ⚠️ | Nelze importovat public class. |
-| **2.5.2** | ✅ | 
+| **2.0 - 2.5** | ⚠️ | Mnoho bugů v POST requestech a práci s cookies. |
+| **2.5.1 - 2.5.2** | ⚠️ | Problém v importování modulů 
+| **2.5.3** | ✅
 
 ## Autentizace
 K API endpointům potřebuješ **SID** a **s5url**. Můžeš si je získat sám z dev tools v prohlížeči, ale nejlepší cesta je pomocí metod: `Auth.login()` a `Auth.getCredentials()`:
@@ -25,9 +25,9 @@ data, cookie = Auth.login("demo", "demo", "0000")
 sid, s5url = Auth.getCredentials(data)
 ```
 
-**Poznámky:**
-- Podporované jazyky: `CZ`, `EN`, `SK`.
-- `Auth.login()` vrací `cookie` a JSON data; `Auth.getCredentials()` z nich vytáhne `sid` a `s5url`.
+> ℹ️ Podporované jazyky: `CZ`, `EN`, `SK`.
+
+> ℹ️ `Auth.login()` vrací `cookie` a JSON data; `Auth.getCredentials()` z nich vytáhne `sid` a `s5url`.
 
 ## Inicializace API
 ```py
@@ -40,7 +40,7 @@ api = Api(
 )
 ```
 
-> ⚠️ `s5url=""` může být hash, url či prázdné. Někdy se stane, že musí být spravný input, někdy může být prázné. 
+> ℹ️ `s5url` může být hash, url či prázdné. Někdy se stane, že musí být spravný input, někdy může být prázné. 
 
 
 ## Veřejné endpointy (bez přihlášení)
@@ -62,7 +62,7 @@ api = Api(
 | `getUsername()` | Uživatelské jméno | Vytahuje z `getInfo()` |
 | `getJidelna()` | Informace o jídelně 
 | `getHistorieKlienta(date)` | Historie objednávek za měsíc | `date` = první den měsíce (např. `2025-01-01`) |
-| `getPlaby()` | Pohyby na účtu
+| `getPlatby()` | Pohyby na účtu
 | `getMessages()` | Zprávy pro uživatele 
 | `getProtokol()` | Vrátí protokol
 | `getVydej()` | Vrátí list vydaných jídel.
@@ -70,6 +70,8 @@ api = Api(
 | `postDen(datum, stav)` | Přihlásit/odhlásit celý den | `datum` ve formátu `YYYY-MM-DD` |
 | `postOrders()` | Uložit změny objednávek | Nutné po `postJidlo`/`postDen` |
 | `resetChanges()` | Resetuje neuložené změny v komunikaci. | Dobré pro zrušení změn při objednávkách
+
+> ℹ️ Je poměrně jedno jestli používáme GET nebo POST, vždy to z nějakého důvodu funguje. Pro lepší logiku v kódu je to rozděleno.
 
 ## Filtr
 Filtr pro data existuje, ale bude se dále rozšiřovat. Lze ho importovat (`from strava_cz_api import Filter`), ale zatím není zaručeno, že všude funguje správně.
@@ -170,18 +172,19 @@ Ukázkové skripty najdeš ve složce `./examples`.
 - Mnoho polí není vyplněno. Zda víte co to je, doplňte to nebo mě kontaktujte.
 
 ## Strava verze
-- Zaznamenané strava verze společně s poznámkami. Seřazeno od nejpoužívanějších
+- Zaznamenané strava verze společně s poznámkami. Seřazeno od nejpoužívanějších.
+
 | Verze | Poznámka |
 | --- | --- |
-| 5.14 | 
-| 5.13 | Vytvářeno. Testováno.
-| 4.65 | 
-| 4.64 | 
-| 4.00 | 
-| 5.12 | 
-| 5.15 | 
-| 5.11 | 
-| 4.51 | Demo verze. Testováno. Nějaké metody nefungují. 
+| 5.14 | |
+| 5.13 | Vytvářeno. Testováno.|
+| 4.65 | |
+| 4.64 | |
+| 4.00 | |
+| 5.12 | |
+| 5.15 | |
+| 5.11 | |
+| 4.51 | Demo verze. Testováno. Nějaké metody nefungují. |
 
 - Největší rozdíly jsou většinou mezi verzí 4 a 5. Endpointy a outputy jsou podobné. 
 - Pravděpodobně od verze 5 je vyžadováno `s5url`
