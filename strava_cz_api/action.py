@@ -16,7 +16,14 @@ class BackendError(StravaError):
 class ChybneSID(StravaError):
     pass
 
+class ChybnyUzivatel(StravaError):
+    pass
+
 class NelzePrihlasit(StravaError):
+    pass
+
+
+class AuthError(StravaError):
     pass
 
 
@@ -31,7 +38,12 @@ def raise_api_error(data):
     message = data.get("message", "Neznámá chyba")
 
     exc = ERROR_MAP.get(number, StravaError)
-    raise exc(message)
+    error_msg = f"""
+
+---=== Error: #{number} ===---
+{message}
+    """
+    raise exc(error_msg)
 
 
 ERROR_MAP = {
@@ -40,6 +52,8 @@ ERROR_MAP = {
     35: NelzePrihlasit,
     13405: ChybneHesloError,
     3002: BackendError,
+    13404: ChybnyUzivatel,
+    10102: AuthError,
 }
 
 class Get:

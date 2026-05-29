@@ -1,4 +1,4 @@
-from .strava import Api, Auth
+from .strava import Api, Auth, Public
 from .filter import Filter
 from .action import (
     StravaError,

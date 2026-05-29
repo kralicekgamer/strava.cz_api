@@ -319,6 +319,13 @@ class Public:
 
         return Get.call(url, payload)
 
+    @staticmethod
+    def getVersion(cislo_jidelny):
+        """
+        Pomocná metoda co vratí verzi softwaru jídelny
+        """
+        return json.loads(Public.getJidelna(cislo_jidelny)).get("verze")[0]
+
 
     @staticmethod
     def getS5url(cislo_jidelny):

@@ -11,9 +11,9 @@ pip install strava_cz_api
 | Verze | Stav | Poznámka |
 | --- | --- | --- |
 | **1.X** | ❌ | Stará verze bez error handlingu. Funkční :D |
-| **2.0 - 2.4.1** | ⚠️ | Chyba v postOrders. |
-| **2.5** | ⚠️ | Menší bug při vracení cookies a v POST requestech. |
-| **2.5.1** | ✅ | Opraveny známé bugy. |
+| **2.0 - **2.5** | ⚠️ | Mnoho bugů v POST requestech a práci s cookies. |
+| **2.5.1** | ⚠️ | Nelze importovat public class. |
+| **2.5.2** | ✅ | 
 
 ## Autentizace
 K API endpointům potřebuješ **SID** a **s5url**. Můžeš si je získat sám z dev tools v prohlížeči, ale nejlepší cesta je pomocí metod: `Auth.login()` a `Auth.getCredentials()`:
@@ -21,7 +21,7 @@ K API endpointům potřebuješ **SID** a **s5url**. Můžeš si je získat sám 
 ```py
 from strava_cz_api import Auth
 
-data, _ = Auth.login("demo", "demo", "0000")
+data, cookie = Auth.login("demo", "demo", "0000")
 sid, s5url = Auth.getCredentials(data)
 ```
 
@@ -40,8 +40,8 @@ api = Api(
 )
 ```
 
-**Poznámky:**
-- `s5url=""` může být hash, url či prázdné. Někdy se stane, že musí být spravný input, někdy může být prázné. 
+> ⚠️ `s5url=""` může být hash, url či prázdné. Někdy se stane, že musí být spravný input, někdy může být prázné. 
+
 
 ## Veřejné endpointy (bez přihlášení)
 
@@ -51,6 +51,7 @@ api = Api(
 | `getJidelna()` | Informace o jídělne
 | `getS5url()` | URL jídelny
 | `getJidelnicek()` | Get veřejného jídelníčku 
+| `getVersion()` | Verze softwaru jídelny 
 
 ## Autentizované endpointy (Api)
 | Metoda | Popis | Poznámka |
@@ -167,6 +168,24 @@ Ukázkové skripty najdeš ve složce `./examples`.
 }
 ```
 - Mnoho polí není vyplněno. Zda víte co to je, doplňte to nebo mě kontaktujte.
+
+## Strava verze
+- Zaznamenané strava verze společně s poznámkami. Seřazeno od nejpoužívanějších
+| Verze | Poznámka |
+| --- | --- |
+| 5.14 | 
+| 5.13 | Vytvářeno. Testováno.
+| 4.65 | 
+| 4.64 | 
+| 4.00 | 
+| 5.12 | 
+| 5.15 | 
+| 5.11 | 
+| 4.51 | Demo verze. Testováno. Nějaké metody nefungují. 
+
+- Největší rozdíly jsou většinou mezi verzí 4 a 5. Endpointy a outputy jsou podobné. 
+- Pravděpodobně od verze 5 je vyžadováno `s5url`
+- Mnoho polí není vyplněno. Pokud máte nějaké poznamky. Doplňte je nebo mě kontaktujte.
 
 ## Demo
 - Demo uživatele si lze vytvořit na https://www.strava.cz/strava/Stravnik/Demo
