@@ -1,4 +1,4 @@
-from strava import Public
+from strava_cz_api import Public
 import json
 
 cislo_jidelny = input("Zadej cislo jidelny: ").strip()
