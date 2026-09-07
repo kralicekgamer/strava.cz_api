@@ -115,6 +115,16 @@ data, cookie = api.resetChanges()
 ## Příklady
 Ukázkové skripty najdeš ve složce `./examples`.
 
+## Test API
+Jednoduchý živý test všech hlavních endpointů spusť příkazem:
+
+```bash
+python test_api.py
+```
+
+Test si vyžádá uživatelské jméno, heslo a číslo jídelny a vypíše `PASS` nebo
+`FAIL` pro každý endpoint.
+
 ## Strava verze
 - Zaznamenané strava verze společně s poznámkami. 
 

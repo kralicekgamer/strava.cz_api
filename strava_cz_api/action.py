@@ -22,6 +22,8 @@ class ChybnyUzivatel(StravaError):
 class NelzePrihlasit(StravaError):
     pass
 
+class NelzeVytvoritSID(StravaError):
+    pass
 
 class AuthError(StravaError):
     pass
@@ -48,6 +50,7 @@ def raise_api_error(data):
 
 ERROR_MAP = {
     6: JidelnaNenalezenaError,
+    14: NelzeVytvoritSID,
     15: ChybneSID,
     35: NelzePrihlasit,
     13405: ChybneHesloError,
