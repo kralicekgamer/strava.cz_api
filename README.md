@@ -13,7 +13,7 @@ pip install strava_cz_api
 | **1.X** | ❌ | Stará verze bez error handlingu. Funkční :D |
 | **2.0 - 2.5** | ⚠️ | Mnoho bugů v POST requestech a práci s cookies. |
 | **2.5.1 - 2.5.2** | ⚠️ | Problém v importování modulů 
-| **2.5.3** | ✅
+| **2.5.3 - 2.5.4** | ✅
 
 ## Autentizace
 K API endpointům potřebuješ **SID** a **s5url**. Můžeš si je získat sám z dev tools v prohlížeči, ale nejlepší cesta je pomocí metod: `Auth.login()` a `Auth.getCredentials()`:
@@ -101,7 +101,7 @@ data, cookie = api.resetChanges()
 ```
 
 ## Návratové hodnoty
-- Většina metod vrací JSON string.
+- Většina metod vrací dict.
 - POST metody `postJidlo()`, `postDen()`, `postOrders()`, `resetChanges()` a `Auth.login()` vrací **dvojici `(data, cookie)`** z POST odpovědi.
   - `data` - JSON response z API
   - `cookie` - nový cookie pro další požadavky (automaticky se aktualizuje v Api objektu) 
@@ -115,7 +115,27 @@ data, cookie = api.resetChanges()
 ## Příklady
 Ukázkové skripty najdeš ve složce `./examples`.
 
-## Json struktura 
+## Strava verze
+- Zaznamenané strava verze společně s poznámkami. 
+
+| Verze | Funkčnost | Poznámka |
+| --- | --- | --- |
+| 5.15 | ❔ |
+| 5.14 | ✅ | Nejsou implementovány metody pro burzu.
+| 5.13 | ⭐ |
+| 5.12 | ❔ |
+| 5.11 | ❔ |
+| 4.65 | ❔ |
+| 4.64 | ❔ |
+| 4.51 | ⚠️ | Nefunkční endpointy: getJidelna, getProtokol, postJidlo, postDen, postOrders, resetChanges
+| 4.00 | ❔ |
+
+- ⭐ - stavěno na této verzi
+- ✅ - funkční
+- ⚠️ - problémy
+- ❔ - neotestováno
+
+## Json struktura  (s5.13) 
 ```json
 {
     "tableX": [
@@ -130,7 +150,7 @@ Ukázkové skripty najdeš ve složce `./examples`.
             "zakazaneAlergeny": null, // ??
             "alergeny_text": "", // alergeny
             "alergeny": [], // alergeny
-            "chod": "C", // číslo chodu (A = snídaně, B, C)
+            "chod": "C", // číslo chodu (A=snídaně, B=svačina, C=oběd/balíček, D=svačina, E=večeře, F=druhá večeře)
             "druh": "OB", // druh chodu ve zkratce
             "cena": "45.00", // cena
             "polevka": "N", // zda pole je polévka (je v ceně)
@@ -143,7 +163,7 @@ Ukázkové skripty najdeš ve složce `./examples`.
                 "zm": "", 
                 "bur": "C" 
             },
-            "burza": { // ???
+            "burza": { // poptávání a nabízení jídel, od verze 5.14
                 "zmena": "0",
                 "ostatni": "0",
                 "nabidka": "0",
@@ -160,7 +180,7 @@ Ukázkové skripty najdeš ve složce `./examples`.
             "zkratkaProduktu": "OB", // zkratka produktu (identické jako chod, u polévky chybí??)
             "cisloJidelnicku": "1", // ??
             "multipleNazev": "1NOběd č. 1COB", // ??
-            "version": 5, // ??
+            "version": 5, // verze stravy (4/5)
             "casKonec": "2026-06-29T11:50:00", // do kdy lze přihlásit
             "casOdhlaseni": "2026-06-29T11:50:00", // do kdy lze přihlásit
             "obrazky": []
@@ -169,28 +189,11 @@ Ukázkové skripty najdeš ve složce `./examples`.
     ]
 }
 ```
-- Mnoho polí není vyplněno. Zda víte co to je, doplňte to nebo mě kontaktujte.
 
-## Strava verze
-- Zaznamenané strava verze společně s poznámkami. Seřazeno od nejpoužívanějších.
-
-| Verze | Poznámka |
-| --- | --- |
-| 5.14 | |
-| 5.13 | Vytvářeno. Testováno.|
-| 4.65 | |
-| 4.64 | |
-| 4.00 | |
-| 5.12 | |
-| 5.15 | |
-| 5.11 | |
-| 4.51 | Demo verze. Testováno. Nějaké metody nefungují. |
-
-- Největší rozdíly jsou většinou mezi verzí 4 a 5. Endpointy a outputy jsou podobné. 
-- Pravděpodobně od verze 5 je vyžadováno `s5url`
-- Mnoho polí není vyplněno. Pokud máte nějaké poznamky. Doplňte je nebo mě kontaktujte.
+## Forks
+- Pokud chcete doplnit readme, otestovali jste verzi, máte poznámky nebo upravujete kód, github pull request.
 
 ## Demo
 - Demo uživatele si lze vytvořit na https://www.strava.cz/strava/Stravnik/Demo
 - Poté se lze přihlásit na https://app.strava.cz/ na jídelně `0000`
-- Prosím nepoužívejte `demo` `demo`. Pak je to zablokované a nefunguje to :D.
+- Demo uživatel se smaže začátkem nového měsíce
