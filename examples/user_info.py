@@ -1,4 +1,3 @@
-
 from strava_cz_api import Api, Auth
 import getpass
 import json

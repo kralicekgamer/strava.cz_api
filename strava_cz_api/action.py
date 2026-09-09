@@ -28,6 +28,14 @@ class NelzeVytvoritSID(StravaError):
 class AuthError(StravaError):
     pass
 
+class S5Payload(StravaError):
+    pass
+
+class S5AndJidelnaPayload(StravaError):
+    pass
+
+class ApiError(StravaError):
+    pass
 
 def raise_api_error(data):
     if not isinstance(data, dict):
@@ -52,11 +60,14 @@ ERROR_MAP = {
     6: JidelnaNenalezenaError,
     14: NelzeVytvoritSID,
     15: ChybneSID,
+    30: S5AndJidelnaPayload,
     35: NelzePrihlasit,
-    13405: ChybneHesloError,
     3002: BackendError,
-    13404: ChybnyUzivatel,
     10102: AuthError,
+    13201: S5Payload,
+    13404: ChybnyUzivatel,
+    13405: ChybneHesloError,
+    "99+": ApiError,
 }
 
 class Get:

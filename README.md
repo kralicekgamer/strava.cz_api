@@ -13,7 +13,7 @@ pip install strava_cz_api
 | **1.X** | ❌ | Stará verze bez error handlingu. Funkční :D |
 | **2.0 - 2.5** | ⚠️ | Mnoho bugů v POST requestech a práci s cookies. |
 | **2.5.1 - 2.5.2** | ⚠️ | Problém v importování modulů 
-| **2.5.3 - 2.5.4** | ✅
+| **2.5.3 - 2.5.5** | ✅
 
 ## Autentizace
 K API endpointům potřebuješ **SID** a **s5url**. Můžeš si je získat sám z dev tools v prohlížeči, ale nejlepší cesta je pomocí metod: `Auth.login()` a `Auth.getCredentials()`:
@@ -112,8 +112,27 @@ data, cookie = api.resetChanges()
 - Error handling je dostupný přes výjimky, které lze importovat: `from strava_cz_api import StravaError`.
 - Při neúspěšném požadavku se vyhazuje `ConnectionError`.
 
+| Číslo chyby | Název chyby | Popis |
+| --- | --- | --- |
+| `6` | `JidelnaNenalezenaError` | Chybné číslo jídelny |
+| `14` | `NelzeVytvoritSID` |  |
+| `15` | `ChybneSID` | Chybný SID token při autentizaci |
+| `30` | `S5AndJidelnaPayload` | Nesedí S5URL a číslo jídelny |
+| `35` | `NelzePrihlasit` | |
+| `3002` | `BackendError` | Endpoint na této verzi neexistuje. |
+| `10102` | `AuthError` | |
+| `13201` | `S5Payload` | Špatná S5URL |
+| `13404` | `ChybnyUzivatel` | Chybné uživatelské jméno |
+| `13405` | `ChybneHesloError` | Chybné heslo |
+| `99+` | `ApiError` | Chyba odchycena u stravy.cz |
+
 ## Příklady
 Ukázkové skripty najdeš ve složce `./examples`.
+
+## Časté chyby
+- Pokud číslo jídelny začíná 0 je nutné celou jídelnu je nutné poslat jako string ("0000")
+- Je nutné pracovat jak s číslem jídelny tak s5url
+- Test API nefunguje na 100%. Někdy jídelna má špatnou verzi (endpoint tam neexistuje err 3002), nebo prostě je něco špatně v jídelně nebo na straně stravy.cz.
 
 ## Test API
 Jednoduchý živý test všech hlavních endpointů spusť příkazem:

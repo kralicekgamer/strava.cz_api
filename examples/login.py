@@ -1,5 +1,4 @@
 # made by OpiKula
-
 from strava_cz_api import Api, Auth, StravaError
 import getpass
 
