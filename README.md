@@ -168,10 +168,10 @@ Test si vyžádá uživatelské jméno, heslo a číslo jídelny a vypíše `PAS
             "veta": "172", // id políčka
             "vetaDieta": "196", // ??
             "omezeniObj": { // ???
-                "den": "",
-                "obj": "",
-                "zm": "", 
-                "bur": "C" 
+                "den": "", // CO - ?, VP - ?
+                "obj": "", // C - Nelze objednat, I - Vždy přihlášeno (polévka), V - Svátek
+                "zm": "", // C - Nelze změnit, I - Vždy přihlášeno (polévka)
+                "bur": "C" // C - Nelze obchodovat, ! - ? , I - Vždy přihlášeno (polévka), V - Svátek
             },
             "burza": { // poptávání a nabízení jídel, od verze 5.14
                 "zmena": "0",
