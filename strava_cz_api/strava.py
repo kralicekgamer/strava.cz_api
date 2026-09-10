@@ -16,17 +16,27 @@ class Api:
 
         self.base = "https://app.strava.cz/api"
 
+    def _get(self, url, payload):
+        data, self.cookie = Get.call(url, payload, cookie=self.cookie)
+        return data
+
+    def _post(self, url, payload):
+        data, self.cookie = Post.call(url, payload, cookie=self.cookie)
+        return data
 
     def getJidelnicekToday(self):
         """
-        Vrátí dnešní jídelníček
-        """
-        return json.loads(self.getJidelnicekAll()).get("table0", [])
+        Vrátí dnešní jídelníček.
 
+        :return: list[dict]
+        """
+        return self.getJidelnicekAll().get("table0", [])
 
     def getJidelnicekAll(self):
         """
-        Vrátí celý jídelníček
+        Vrátí celý jídelníček.
+
+        :return: dict
         """
         url = f"{self.base}/objednavky"
 
@@ -40,12 +50,13 @@ class Api:
             "ignoreCert": "false"
         }
 
-        return Get.call(url, payload)
-
+        return self._get(url, payload)
 
     def getInfo(self):
         """
-        Vrátí info o uživateli
+        Vrátí info o uživateli.
+
+        :return: dict
         """
         url = f"{self.base}/nactiVlastnostiPA"
 
@@ -61,23 +72,22 @@ class Api:
             "frontendFunction": "refreshInformations"
         }
 
-
-        return Get.call(url, payload)
-    
+        return self._get(url, payload)
 
     def getUsername(self):
         """
-        Vrátí uživatelské jméno
+        Vrátí uživatelské jméno.
+
+        :return: str
         """
-
-        return json.loads(self.getInfo()).get("id")
-
+        return self.getInfo().get("id")
 
     def getJidelna(self):
         """
-        Získá informaci o jídelně
-        """
+        Získá informaci o jídelně.
 
+        :return: dict
+        """
         url = f"{self.base}/jidelnaS5"
 
         payload = {
@@ -87,19 +97,16 @@ class Api:
             "ignoreCert": "false"
         }
 
-
-        return Get.call(url, payload)
-
+        return self._get(url, payload)
 
     def getHistorieKlienta(self, date):
         """
         Získá info o historii objednávek.
         
-        date = počáteční datum měsíce. 
-        2025-01-01 - leden
-        2025-12-01 - prosinec
-        """
+        date = počáteční datum měsíce (např. 2025-01-01).
 
+        :return: dict
+        """
         url = f"{self.base}/historieKlienta"
 
         payload = {
@@ -111,15 +118,14 @@ class Api:
             "ignoreCert": "false"
         }
 
-
-        return Get.call(url, payload)
-
+        return self._get(url, payload)
 
     def getPlatby(self):
         """
         Vrátí platby na účtu.
-        """
 
+        :return: dict
+        """
         url = f"{self.base}/platby"
 
         payload = {
@@ -130,15 +136,14 @@ class Api:
             "ignoreCert": "false"
         }
 
-
-        return Get.call(url, payload)
-
+        return self._get(url, payload)
 
     def getMessages(self):
         """
         Vrátí zprávy poslané uživatelovi.
-        """
 
+        :return: dict
+        """
         url = f"{self.base}/messagesGetList"
 
         payload = {
@@ -149,14 +154,14 @@ class Api:
             "typZpravy": ""
         }
 
-        return Get.call(url, payload)
-
+        return self._get(url, payload)
 
     def getProtokol(self):
         """
         Vrátí protokol.
-        """
 
+        :return: dict
+        """
         url = f"{self.base}/getProtokol"
 
         payload = {
@@ -169,15 +174,14 @@ class Api:
             "evCislo": 0
         }
 
-
-        return Get.call(url, payload)
-
+        return self._get(url, payload)
 
     def getVydej(self):
         """
         Vrátí list vydaných jídel.
-        """
 
+        :return: dict
+        """
         url = f"{self.base}/vydej"
 
         payload = {
@@ -188,16 +192,16 @@ class Api:
             "lang": self.lang,
         }
 
-
-        return Get.call(url, payload)
-
+        return self._get(url, payload)
 
     def postJidlo(self, veta, stav):
         """
-        Příhlásí nebo odhlásí jídlo.
+        Přihlásí nebo odhlásí jídlo.
         
         veta = číslo políčka/jídla - jde získat např. z getJidelnicek()
-        stav =  0 odhlásit - 1 přihlásit
+        stav = 0 odhlásit, 1 přihlásit
+
+        :return: dict
         """
         url = f"{self.base}/pridejJidloS5"
 
@@ -211,17 +215,15 @@ class Api:
             "ignoreCert": "false"
         }
 
-        data, self.cookie = Post.call(url, payload, self.cookie)
-
-        return data, self.cookie
-
+        return self._post(url, payload)
 
     def postOrders(self):
         """
-        Uloží objednávky
+        Uloží objednávky.
+
+        :return: dict
         """
         url = f"{self.base}/saveOrders"
-
 
         payload = {
             "cislo": self.cislo_jidelny,
@@ -232,19 +234,17 @@ class Api:
             "ignoreCert": "false"
         }
         
-        data, self.cookie = Post.call(url, payload, self.cookie)
-
-        return data, self.cookie
-
+        return self._post(url, payload)
 
     def postDen(self, datum, stav):
         """
-        Přihlásí nebo ohlásí celý den.
+        Přihlásí nebo odhlásí celý den.
         
-        datum = datum dne jaký chceme odhlásit. 2025-12-30
-        stav =  0 ohlasit - 1 prihlasit
-        """
+        datum = datum dne jaký chceme odhlásit (např. 2025-12-30)
+        stav = 0 odhlásit, 1 přihlásit
 
+        :return: dict
+        """
         url = f"{self.base}/objednejDenS5"
 
         payload = {
@@ -257,14 +257,13 @@ class Api:
             "ignoreCert": "false"
         }
 
-        data, self.cookie = Post.call(url, payload, self.cookie)
-
-        return data, self.cookie
-
+        return self._post(url, payload)
 
     def resetChanges(self):
         """
-        Resetuje neuložené změny v komunikaci. Vrací (data, cookie). Může trvat dlouho!
+        Resetuje neuložené změny v komunikaci. Může trvat dlouho!
+
+        :return: dict
         """
         url = f"{self.base}/nactiVlastnostiPA"
 
@@ -280,16 +279,16 @@ class Api:
             "frontendFunction": "refreshInformations"
         }
 
-        data, self.cookie = Post.call(url, payload, self.cookie)
-
-        return data, self.cookie
+        return self._post(url, payload)
 
 
 class Public:
     @staticmethod
-    def getJidelnicek(cislo_jidelny, lang):
+    def getJidelnicek(cislo_jidelny, lang="CZ"):
         """
-        Získání public jídelníčků.
+        Získání veřejného jídelníčku.
+
+        :return: dict
         """
         if lang not in ("CZ", "EN", "SK"):
             raise ValueError("Podporované jazyky: EN, CZ, SK")
@@ -303,57 +302,71 @@ class Public:
             "ignoreCert": False
         }
 
-        return Get.call(url, payload)
+        data, _ = Get.call(url, payload)
+        return data
 
     @staticmethod
     def getJidelna(cislo_jidelny):
         """
         Vrátí informaci o jídelně.
+
+        :return: dict
         """
         url = "https://app.strava.cz/api/s4Polozky"
 
         payload = {
             "cislo": cislo_jidelny,
             "lang": "CZ",
-            "polozky": "V_NAZEV,V_ULICE,V_MESTO,V_PSC,V_TELEFON,V_UCET,V_EMAIL,V_URL,DATCAS_AKT,VERZE,URLWSDL_S-URL,GPSDELKA,GPSSIRKA,IGN_CERT,TEXT_ANON,LOGO"}
+            "polozky": "V_NAZEV,V_ULICE,V_MESTO,V_PSC,V_TELEFON,V_UCET,V_EMAIL,V_URL,DATCAS_AKT,VERZE,URLWSDL_S-URL,GPSDELKA,GPSSIRKA,IGN_CERT,TEXT_ANON,LOGO"
+        }
 
-        return Get.call(url, payload)
+        data, _ = Get.call(url, payload)
+        return data
 
     @staticmethod
     def getVersion(cislo_jidelny):
         """
-        Pomocná metoda co vratí verzi softwaru jídelny
-        """
-        return json.loads(Public.getJidelna(cislo_jidelny)).get("verze")[0]
+        Pomocná metoda co vrátí verzi softwaru jídelny.
 
+        :return: str
+        """
+        verze = Public.getJidelna(cislo_jidelny).get("verze")
+        return verze[0] if verze else None
 
     @staticmethod
     def getS5url(cislo_jidelny):
         """
-        Pomocná metoda co vratí url jídelny.
+        Pomocná metoda co vrátí URL jídelny.
+
+        :return: str - s5url jídelny
         """
-        return json.loads(Public.getJidelna(cislo_jidelny)).get("urlwsdl_s")[0]
-        
+        urls = Public.getJidelna(cislo_jidelny).get("urlwsdl_s")
+        return urls[0] if urls else ""
 
     @staticmethod
     def getJidelny():
         """
         Vrátí seznam všech jídelen a jejich čísel.
+
+        :return: dict
         """
         url = "https://app.strava.cz/api/zarAMesta"
         
         payload = {
-            "lang":"CZ"
+            "lang": "CZ"
         }
 
-        return Get.call(url, payload)
+        data, _ = Get.call(url, payload)
+        return data
 
 
 class Auth:
     @staticmethod
     def login(username, password, cislo_jidelny, lang="CZ", zustat_prihlasen=True, cookie="NEXT_LOCALE=cs"):
         """
-        Vrátí data nutná pro další komunikaci.
+        Přihlásí uživatele a vrátí data a session cookies pro další komunikaci.
+
+        :return: tuple[dict, str]
         """
         if lang not in ("CZ", "EN", "SK"):
             raise ValueError("Podporované jazyky: EN, CZ, SK")
@@ -371,11 +384,12 @@ class Auth:
 
         return Post.call(url, payload, cookie)
 
-
     @staticmethod
     def getCredentials(data):
         """
-        Vyfiltruje SID a s5url z funkce login
+        Vyfiltruje SID a s5url z funkce login.
+
+        :return: tuple[str, str]
         """
         parsed_data = json.loads(data) if isinstance(data, str) else data
         sid = parsed_data.get("sid")

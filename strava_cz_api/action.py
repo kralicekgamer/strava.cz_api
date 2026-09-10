@@ -70,15 +70,31 @@ ERROR_MAP = {
     "99+": ApiError,
 }
 
+def merge_cookies(old_cookie, response_cookies):
+    cookies = {}
+    if old_cookie:
+        for part in old_cookie.split(";"):
+            if "=" in part:
+                k, v = part.strip().split("=", 1)
+                cookies[k.strip()] = v.strip()
+    if response_cookies:
+        for k, v in response_cookies.items():
+            cookies[k] = v
+    return "; ".join([f"{k}={v}" for k, v in cookies.items()])
+
+
 class Get:
     @staticmethod
-    def call(url, payload, headers=None):
+    def call(url, payload, cookie=None, headers=None):
         if headers is None:
             headers = {
                 "Content-Type": "text/plain;charset=UTF-8",
-                "Cookie": "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D",
                 "Referer": "https://app.strava.cz/"
             }
+            if cookie:
+                headers["Cookie"] = cookie
+            else:
+                headers["Cookie"] = "NEXT_LOCALE=cs; multiContextSession=%7B%22printOpen%22%3A%7B%22value%22%3Afalse%2C%22expiration%22%3A-1%7D%7D"
 
         response = requests.get(url, headers=headers, json=payload)
             
@@ -86,8 +102,9 @@ class Get:
 
         raise_api_error(data)
 
-        return json.dumps(data, indent=2, ensure_ascii=False)
-            
+        new_cookie = merge_cookies(headers.get("Cookie", ""), response.cookies)
+
+        return data, new_cookie
 
 
 class Post:
@@ -100,13 +117,12 @@ class Post:
                 "Referer": "https://app.strava.cz/"
             }
 
-
         response = requests.post(url, headers=headers, json=payload)
 
         data = response.json()
 
         raise_api_error(data)
 
-        new_cookie = "; ".join([f"{k}={v}" for k, v in response.cookies.items()])
+        new_cookie = merge_cookies(headers.get("Cookie", ""), response.cookies)
 
-        return json.dumps(data, indent=2, ensure_ascii=False), new_cookie
+        return data, new_cookie
