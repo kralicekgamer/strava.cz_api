@@ -10,9 +10,8 @@ pip install strava_cz_api
 
 | Verze | Stav | Poznámka |
 | --- | --- | --- |
-| **1.X** | ❌ | Stará verze bez error handlingu. Funkční :D |
-| **2.0 - 2.5** | ⚠️ | Mnoho bugů v POST requestech a práci s cookies. |
-| **2.5.1 - 2.5.2** | ⚠️ | Problém v importování modulů 
+| **1.X** | ❌ | Stará verze bez error handlingu. |
+| **2.0 - 2.5.2** | ⚠️ | Nedoladěné verze. Hodně chyb.
 | **2.5.3 - 2.5.5** | ✅
 
 ## Autentizace
