@@ -51,6 +51,26 @@ class Api:
         }
 
         return self._get(url, payload)
+    
+    def userInfo(self):
+        """
+        Vrátí info o veškeré info o uživateli.
+        Vyplatí se používat jen pokud potřebujete něco co není v Api.getInfo().
+
+        :return: dict 
+        """
+
+        url = f"{self.base}/userInfo"
+
+        payload = {
+            "sid": self.sid,
+            "s5url": self.s5url,
+            "cislo": self.cislo_jidelny,
+            "ignoreCert": "false",
+            "lang": self.lang
+        }
+
+        return self._get(url, payload)
 
     def getInfo(self):
         """
