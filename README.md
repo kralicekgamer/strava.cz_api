@@ -12,7 +12,7 @@ pip install strava_cz_api
 | --- | --- | --- |
 | **1.X** | ❌ | Stará verze bez error handlingu. |
 | **2.0 - 2.5.2** | ⚠️ | Nedoladěné verze. Hodně chyb.
-| **2.5.3 - 2.5.5** | ✅
+| **2.5.3 - 2.5.6** | ✅
 
 ## Autentizace
 K API endpointům potřebuješ **SID** a **s5url**. Můžeš si je získat sám z dev tools v prohlížeči, ale nejlepší cesta je pomocí metod: `Auth.login()` a `Auth.getCredentials()`:
@@ -57,7 +57,8 @@ api = Api(
 | --- | --- | --- |
 | `getJidelnicekToday()` | Dnešní jídelníček | Vrací list (`table0`) |
 | `getJidelnicekAll()` | Kompletní jídelníček 
-| `getInfo()` | Informace o uživateli | Upravený payload.
+| `getInfo()` | Informace o uživateli | Upravený payload. Více pod tabulkou.
+| `userInfo()` | Veškeré info o uživateli |
 | `getUsername()` | Uživatelské jméno | Vytahuje z `getInfo()` |
 | `getJidelna()` | Informace o jídelně 
 | `getHistorieKlienta(date)` | Historie objednávek za měsíc | `date` = první den měsíce (např. `2025-01-01`) |
@@ -70,6 +71,7 @@ api = Api(
 | `postOrders()` | Uložit změny objednávek | Nutné po `postJidlo`/`postDen` |
 | `resetChanges()` | Resetuje neuložené změny v komunikaci. | Dobré pro zrušení změn při objednávkách
 
+> ⚠️ Nevím přesně, co `resetTables` dělá, ale podle mě to resetuje komunikaci na straně Stravy (nějakou DB). U `getInfo` je defaultně nastavený na `false`, protože s `true` to trvá extrémně dlouho. Proto existuje metoda `resetChanges`, která to přímo volá s `true`.
 > ℹ️ Je poměrně jedno jestli používáme GET nebo POST, vždy to z nějakého důvodu funguje. Pro lepší logiku v kódu je to rozděleno.
 
 ## Filtr

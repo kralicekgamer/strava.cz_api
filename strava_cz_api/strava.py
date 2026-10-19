@@ -72,7 +72,7 @@ class Api:
 
         return self._get(url, payload)
 
-    def getInfo(self):
+    def getInfo(self, resetTables=False):
         """
         Vrátí info o uživateli.
 
@@ -88,7 +88,7 @@ class Api:
             "lang": self.lang,
             "getText": True,
             "checkVersion": True,
-            "resetTables" : False,
+            "resetTables" : resetTables,
             "frontendFunction": "refreshInformations"
         }
 

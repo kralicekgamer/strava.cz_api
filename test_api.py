@@ -54,7 +54,10 @@ if login:
     run("Public.getVersion", lambda: Public.getVersion(cislo_jidelny))
     run("Api.getJidelnicekAll", api.getJidelnicekAll)
     run("Api.getJidelnicekToday", api.getJidelnicekToday)
+    run("Api.userInfo", api.userInfo)
     run("Api.getInfo", api.getInfo)
+    run("Api.getInfo(resetTables=True)", lambda: api.getInfo(resetTables=True))
+    run("Api.getInfo(resetTables=False)", lambda: api.getInfo(resetTables=False))
     run("Api.getUsername", api.getUsername)
     run("Api.getJidelna", api.getJidelna)
     run(
