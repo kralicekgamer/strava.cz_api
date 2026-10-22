@@ -302,6 +302,25 @@ class Api:
         return self._post(url, payload)
 
 
+    def logOut(self):
+        """
+        Odhlásí uživatele.
+
+        :return: dict
+        """
+        url = f"{self.base}/logger"
+
+        payload = {
+            "cislo": self.cislo_jidelny,
+            "sid": self.sid,
+            "url": self.s5url,
+            "lang": self.lang,
+            "ignoreCert": "false"
+        }
+
+        return self._get(url, payload)
+
+
 class Public:
     @staticmethod
     def getJidelnicek(cislo_jidelny, lang="CZ"):

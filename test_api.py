@@ -73,4 +73,7 @@ if login:
     run("Api.postOrders", api.postOrders)
     run("Api.resetChanges", api.resetChanges)
 
+    print("\nOdhlášení uživatele:")
+    run("Api.logOut", api.logOut)
+
 print(f"\n{passed} PASS, {failed} FAIL")
