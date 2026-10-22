@@ -229,3 +229,8 @@ Test si vyžádá uživatelské jméno, heslo a číslo jídelny a vypíše `PAS
 - Demo uživatele si lze vytvořit na https://www.strava.cz/strava/Stravnik/Demo
 - Poté se lze přihlásit na https://app.strava.cz/ na jídelně `0000`
 - Demo uživatel se smaže začátkem nového měsíce
+
+
+## Todo
+- [ ] /api/logger
+- [ ] /api/ulozNastaveniKlienta
