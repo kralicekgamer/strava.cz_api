@@ -74,6 +74,7 @@ api = Api(
 | `logOut()` | Odhlásí uživatele. | 
 
 > ⚠️ Nevím přesně, co `resetTables` dělá, ale podle mě to resetuje komunikaci na straně Stravy (nějakou DB). U `getInfo` je defaultně nastavený na `false`, protože s `true` to trvá extrémně dlouho. Proto existuje metoda `resetChanges`, která to přímo volá s `true`.
+
 > ℹ️ Je poměrně jedno jestli používáme GET nebo POST, vždy to z nějakého důvodu funguje. Pro lepší logiku v kódu je to rozděleno.
 
 ## Filtr
