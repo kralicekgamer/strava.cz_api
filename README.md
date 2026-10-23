@@ -40,7 +40,7 @@ api = Api(
 )
 ```
 
-> ℹ️ `s5url` může být hash, url či prázdné. Někdy se stane, že musí být spravný input, někdy může být prázné. 
+> ℹ️ `s5url` může být hash, url či prázdné. Někdy se stane, že musí být spravný input, někdy může být prázné. Líší se od verze stravy. Většinou verze s4 s ním nepracuje.
 
 
 ## Veřejné endpointy (bez přihlášení)
