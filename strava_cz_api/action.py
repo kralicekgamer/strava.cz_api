@@ -37,6 +37,13 @@ class S5AndJidelnaPayload(StravaError):
 class ApiError(StravaError):
     pass
 
+class Timeout(StravaError):
+    pass
+
+class LoginTimeout(StravaError):
+    pass
+
+
 def raise_api_error(data):
     if not isinstance(data, dict):
         return
@@ -62,11 +69,13 @@ ERROR_MAP = {
     15: ChybneSID,
     30: S5AndJidelnaPayload,
     35: NelzePrihlasit,
+    998: Timeout,
     3002: BackendError,
     10102: AuthError,
     13201: S5Payload,
     13404: ChybnyUzivatel,
     13405: ChybneHesloError,
+    13410: LoginTimeout,
     "99+": ApiError,
 }
 
