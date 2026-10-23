@@ -13,6 +13,7 @@ pip install strava_cz_api
 | **1.X** | ❌ | Stará verze bez error handlingu. |
 | **2.0 - 2.5.2** | ⚠️ | Nedoladěné verze. Hodně chyb.
 | **2.5.3 - 2.5.7** | ✅
+| **2.5.8** | 🚧 | In development
 
 ## Autentizace
 K API endpointům potřebuješ **SID** a **s5url**. Můžeš si je získat sám z dev tools v prohlížeči, ale nejlepší cesta je pomocí metod: `Auth.login()` a `Auth.getCredentials()`:
@@ -127,6 +128,7 @@ data, cookie = api.resetChanges()
 | `13201` | `S5Payload` | Špatná S5URL |
 | `13404` | `ChybnyUzivatel` | Chybné uživatelské jméno |
 | `13405` | `ChybneHesloError` | Chybné heslo |
+| `13410` | `LoginTimeout` | Login timeout na 2 h |
 | `99+` | `ApiError` | Chyba odchycena u stravy.cz |
 
 ## Příklady
@@ -233,4 +235,4 @@ Test si vyžádá uživatelské jméno, heslo a číslo jídelny a vypíše `PAS
 
 ## Todo
 - [ ] /api/logger
-- [ ] /api/ulozNastaveniKlienta
+- [ ] /api/ulozNastaveniKlienta (mnoho problémů, strava je zase random a používa náhodný MD5, subscribe mailů funguje random :D)
