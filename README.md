@@ -12,32 +12,35 @@ pip install strava_cz_api
 | --- | --- | --- |
 | **1.X** | ❌ | Stará verze bez error handlingu. |
 | **2.0 - 2.5.2** | ⚠️ | Nedoladěné verze. Hodně chyb.
-| **2.5.3 - 2.5.8** | ✅
+| **2.5.3 - 2.5.8** | ✅ | Chybí pár endpointů |
+| **2.6** | ✅ | |
 
-## Autentizace
-K API endpointům potřebuješ **SID** a **s5url**. Můžeš si je získat sám z dev tools v prohlížeči, ale nejlepší cesta je pomocí metod: `Auth.login()` a `Auth.getCredentials()`:
+## Inicializace a autentizace
+Nejjednodušší způsob přihlášení a inicializace API je `Auth.init()`, která vrátí rovnou připravený objekt `Api`:
 
 ```py
 from strava_cz_api import Auth
 
+api = Auth.init("demo", "demo", "0000")
+```
+
+Pokud potřebuješ přihlášení zpracovat ručně, můžeš použít `Auth.login()` a `Auth.getCredentials()` a následně vytvořit `Api`:
+
+```py
+from strava_cz_api import Api, Auth
+
 data, cookie = Auth.login("demo", "demo", "0000")
 sid, s5url = Auth.getCredentials(data)
+api = Api(sid, s5url, "0000", cookie=cookie)
 ```
 
 > ℹ️ Podporované jazyky: `CZ`, `EN`, `SK`.
 
 > ℹ️ `Auth.login()` vrací `cookie` a JSON data; `Auth.getCredentials()` z nich vytáhne `sid` a `s5url`.
 
-### Auth endpoint
-
-| Metoda | Endpoint | Parametry | Návratová hodnota |
-| --- | --- | --- | --- |
-| `Auth.login(username, password, cislo_jidelny, lang="CZ", zustat_prihlasen=True, cookie="NEXT_LOCALE=cs")` | `POST https://app.strava.cz/api/login` | Uživatelské jméno, heslo, číslo jídelny, jazyk a volitelně délka přihlášení | `(data, cookie)`; `data` obsahuje přihlašovací údaje včetně `sid` a `s5url` |
-| `Auth.getCredentials(data)` | — | `data` z `Auth.login()` (dict nebo JSON řetězec) | `(sid, s5url)` pro inicializaci `Api` |
-
 `Auth.login()` může vyhodit `ValueError`, pokud `lang` není `CZ`, `EN` nebo `SK`. Parametr `zustat_prihlasen=False` zkrátí platnost přihlášení podle nastavení Stravy.
 
-## Inicializace API
+### Ruční inicializace API
 ```py
 from strava_cz_api import Api
 
@@ -51,7 +54,17 @@ api = Api(
 > ℹ️ `s5url` může být hash, url či prázdné. Někdy se stane, že musí být spravný input, někdy může být prázné. Líší se od verze stravy. Většinou verze s4 s ním nepracuje.
 
 
-## Veřejné endpointy (bez přihlášení)
+## Endpointy
+
+### Auth endpoint
+
+| Metoda | Endpoint | Parametry | Návratová hodnota |
+| --- | --- | --- | --- |
+| `Auth.init(username, password, cislo_jidelny, lang="CZ", zustat_prihlasen=True, cookie="NEXT_LOCALE=cs")` | `POST https://app.strava.cz/api/login` | Stejné parametry jako `Auth.login()` | Inicializovaný objekt `Api` |
+| `Auth.login(username, password, cislo_jidelny, lang="CZ", zustat_prihlasen=True, cookie="NEXT_LOCALE=cs")` | `POST https://app.strava.cz/api/login` | Uživatelské jméno, heslo, číslo jídelny, jazyk a volitelně délka přihlášení | `(data, cookie)`; `data` obsahuje přihlašovací údaje včetně `sid` a `s5url` |
+| `Auth.getCredentials(data)` | — | `data` z `Auth.login()` (dict nebo JSON řetězec) | `(sid, s5url)` pro inicializaci `Api` |
+
+### Veřejné endpointy (bez přihlášení)
 
 | Metoda | Popis | Poznámka |
 | --- | --- | --- |
@@ -61,7 +74,8 @@ api = Api(
 | `getJidelnicek()` | Veřejný jídelníček | |
 | `getVersion()` | Verze softwaru jídelny | |
 
-## Autentizované endpointy (Api)
+### Autentizované endpointy (Api)
+
 | Metoda | Popis | Poznámka |
 | --- | --- | --- |
 | `getJidelnicekToday()` | Dnešní jídelníček | Vrací list (`table0`) |
@@ -89,9 +103,9 @@ api = Api(
 | `getProdej()` | Seznam prodejů (nákupů) | |
 | `getMessagesAmount()` | Počet nepřečtených zpráv | |
 
-> ⚠️ Nevím přesně, co `resetTables` dělá, ale podle mě to resetuje komunikaci na straně Stravy (nějakou DB). U `getInfo` je defaultně nastavený na `false`, protože s `true` to trvá extrémně dlouho. Proto existuje metoda `resetChanges`, která to přímo volá s `true`.
+> ⚠️ `resetTables` se používá uvnitř komunikace se Stravou. U `getInfo` je defaultně nastavený na `false`, protože s `true` může požadavek trvat velmi dlouho. `resetChanges` tuto možnost využívá pro reset neuložených změn.
 
-> ℹ️ Je poměrně jedno jestli používáme GET nebo POST, vždy to z nějakého důvodu funguje. Pro lepší logiku v kódu je to rozděleno.
+> ℹ️ Endpointy jsou v kódu rozdělené na GET a POST podle účelu, i když Strava.cz u některých z nich přijímá oba typy požadavků.
 
 ## Filtr
 Filtr pro data existuje, ale bude se dále rozšiřovat. Lze ho importovat (`from strava_cz_api import Filter`), ale zatím není zaručeno, že všude funguje správně.

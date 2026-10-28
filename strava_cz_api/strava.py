@@ -575,6 +575,24 @@ class Public:
 
 class Auth:
     @staticmethod
+    def init(username, password, cislo_jidelny, lang="CZ", zustat_prihlasen=True, cookie="NEXT_LOCALE=cs"):
+        """
+        Přihlásí uživatele a vrátí připravený objekt Api.
+
+        :return: Api
+        """
+        data, session_cookie = Auth.login(
+            username,
+            password,
+            cislo_jidelny,
+            lang=lang,
+            zustat_prihlasen=zustat_prihlasen,
+            cookie=cookie
+        )
+        sid, s5url = Auth.getCredentials(data)
+        return Api(sid, s5url, cislo_jidelny, cookie=session_cookie, lang=lang)
+
+    @staticmethod
     def login(username, password, cislo_jidelny, lang="CZ", zustat_prihlasen=True, cookie="NEXT_LOCALE=cs"):
         """
         Přihlásí uživatele a vrátí data a session cookies pro další komunikaci.
