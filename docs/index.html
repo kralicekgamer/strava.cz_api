@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>strava-cz-api</title>
+<meta name="description" content="Dokumentace neoficiální Python knihovny pro app.strava.cz – přihlášení, jídelníček, objednávky, konto, zprávy.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: lepivý postranní rejstřík vlevo, vpravo čtecí sloupec ~72ch; metody jako řádky jídelního lístku */
+:root {
+  --bg: #f5f7f5;
+  --surface: #ffffff;
+  --fg: #17211d;
+  --muted: #5b6a63;
+  --line: #d9e1dc;
+  --accent: #0d6b52;
+  --accent-soft: #e2f1eb;
+  --warn: #9a5b00;
+  --warn-soft: #fbefd9;
+  --info: #3b4fa0;
+  --info-soft: #e6e9f7;
+  --code-bg: #eef2ef;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --step-0: 1rem;
+  --step-1: 1.2rem;
+  --step-2: 1.55rem;
+  --step-3: 2.3rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111715; --surface: #18201d; --fg: #e3ebe7; --muted: #95a59d; --line: #2a3531;
+    --accent: #5fcfa8; --accent-soft: #173229; --warn: #f0b660; --warn-soft: #33270f;
+    --info: #9fb0f5; --info-soft: #1f2540; --code-bg: #1d2723; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111715; --surface: #18201d; --fg: #e3ebe7; --muted: #95a59d; --line: #2a3531;
+  --accent: #5fcfa8; --accent-soft: #173229; --warn: #f0b660; --warn-soft: #33270f;
+  --info: #9fb0f5; --info-soft: #1f2540; --code-bg: #1d2723; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: 1rem; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 400 var(--step-0)/1.6 var(--font-body);
+}
+a { color: var(--accent); }
+a:focus-visible, input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code, pre { font-family: var(--font-mono); font-size: .88em; }
+:not(pre) > code { background: var(--code-bg); padding: .08em .35em; border-radius: 4px; overflow-wrap: anywhere; }
+pre {
+  background: var(--code-bg); border: 1px solid var(--line); border-radius: 6px;
+  padding: .9rem 1rem; overflow-x: auto; line-height: 1.5; margin: 0;
+}
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: var(--step-3); font-weight: 700; letter-spacing: -.02em; }
+h2 { font-size: var(--step-2); font-weight: 700; }
+h3 { font-size: var(--step-1); font-weight: 500; }
+
+.shell {
+  display: grid; grid-template-columns: 17rem minmax(0, 1fr); gap: 3rem;
+  max-width: 78rem; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+nav.index {
+  position: sticky; top: env(safe-area-inset-top, 0px); align-self: start;
+  max-height: 100vh; overflow-y: auto; padding-block: 2rem;
+  display: flex; flex-direction: column; gap: 1rem;
+}
+.brand { display: flex; flex-direction: column; gap: .15rem; }
+.brand b { font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; }
+.brand span { color: var(--muted); font-size: .9rem; }
+.search { width: 100%; padding: .55rem .7rem; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--fg); font: inherit; }
+nav.index ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .1rem; }
+nav.index li a { display: block; padding: .2rem .5rem; border-radius: 4px; color: var(--fg); text-decoration: none; font-size: .95rem; }
+nav.index li a:hover { background: var(--accent-soft); }
+nav.index li.sub a { padding-left: 1.3rem; font-family: var(--font-mono); font-size: .8rem; color: var(--muted); }
+nav.index .label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: .6rem .5rem .2rem; }
+
+main { min-width: 0; padding-block: 2.5rem 5rem; display: flex; flex-direction: column; gap: 3.5rem; }
+section { display: flex; flex-direction: column; gap: 1rem; max-width: 52rem; }
+section > p, .prose { max-width: 68ch; margin: 0; }
+.eyebrow { font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); font-weight: 600; }
+.lead { font-size: 1.15rem; color: var(--muted); max-width: 60ch; margin: 0; }
+.hero { display: flex; flex-direction: column; gap: 1rem; padding-bottom: .5rem; border-bottom: 1px solid var(--line); max-width: 52rem; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; color: var(--muted); font-size: .9rem; }
+.hero-meta strong { color: var(--fg); font-family: var(--font-mono); font-weight: 600; }
+
+.note { border-left: 3px solid var(--warn); background: var(--warn-soft); padding: .7rem 1rem; border-radius: 0 6px 6px 0; max-width: 68ch; }
+.note p { margin: 0; }
+
+.steps { counter-reset: s; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .6rem; max-width: 68ch; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: .5rem; }
+.steps li::before { content: counter(s); font-family: var(--font-display); font-weight: 700; color: var(--accent); font-size: 1.2rem; }
+
+.group { display: flex; flex-direction: column; gap: 0; }
+.group > h3 { padding-bottom: .5rem; border-bottom: 2px solid var(--fg); }
+.method { padding-block: 1.2rem; border-bottom: 1px dashed var(--line); display: flex; flex-direction: column; gap: .55rem; }
+.method-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem .8rem; }
+.sig { font-family: var(--font-mono); font-size: .95rem; font-weight: 600; overflow-wrap: anywhere; min-width: 0; }
+.sig .args { font-weight: 400; color: var(--muted); }
+.leader { flex: 1 1 2rem; border-bottom: 1px dotted var(--line); min-width: 1rem; transform: translateY(-.3rem); }
+.endpoint { font-family: var(--font-mono); font-size: .8rem; color: var(--muted); }
+.method p { margin: 0; max-width: 68ch; }
+.tags { display: flex; flex-wrap: wrap; gap: .35rem; }
+.tag { font-size: .72rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: .1rem .45rem; border-radius: 3px; border: 1px solid currentColor; }
+.tag.read { color: var(--accent); }
+.tag.write { color: var(--warn); background: var(--warn-soft); border-color: transparent; }
+.tag.s5 { color: var(--info); background: var(--info-soft); border-color: transparent; }
+.tag.new { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.tag.local { color: var(--muted); }
+.ret { font-size: .9rem; color: var(--muted); }
+.ret code { color: var(--fg); }
+details { font-size: .95rem; }
+details summary { cursor: pointer; color: var(--accent); font-weight: 600; width: fit-content; }
+details[open] summary { margin-bottom: .5rem; }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: .93rem; }
+th, td { text-align: left; padding: .5rem .75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; background: var(--code-bg); }
+tr:last-child td { border-bottom: 0; }
+td.num { font-variant-numeric: tabular-nums; font-family: var(--font-mono); white-space: nowrap; }
+.legend { display: flex; flex-wrap: wrap; gap: .5rem 1rem; font-size: .9rem; color: var(--muted); align-items: center; }
+.empty { color: var(--muted); font-style: italic; }
+footer { color: var(--muted); font-size: .9rem; border-top: 1px solid var(--line); padding-top: 1rem; max-width: 52rem; }
+
+@media (max-width: 900px) {
+  .shell { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  nav.index { position: static; max-height: none; padding-block: 1.5rem 0; }
+  nav.index ul.toc { flex-direction: row; flex-wrap: wrap; gap: .25rem; }
+  nav.index li.sub { display: none; }
+  nav.index .label { display: none; }
+  h1 { font-size: 1.9rem; }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="index" aria-label="Obsah">
+    <div class="brand"><b>strava-cz-api</b><span>verze 3.0 · Python ≥ 3.8</span></div>
+    <label for="q" class="label" style="padding:0">Hledat metodu</label>
+    <input id="q" class="search" type="search" placeholder="např. order, konto, zprávy…" autocomplete="off">
+    <ul class="toc" id="toc">
+      <li><a href="#start">Rychlý start</a></li>
+      <li><a href="#prihlaseni">Přihlášení</a></li>
+      <li><a href="#objednavky">Postup objednávky</a></li>
+      <li><a href="#strava">Třída Strava</a></li>
+      <li><a href="#public">Třída Public</a></li>
+      <li><a href="#modely">Modely</a></li>
+      <li><a href="#cli">Příkazová řádka</a></li>
+      <li><a href="#chyby">Chyby</a></li>
+      <li><a href="#migrace">Migrace z 2.x</a></li>
+      <li><a href="#verze">Verze Stravy</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <header class="hero" id="top">
+      <span class="eyebrow">Neoficiální knihovna pro app.strava.cz</span>
+      <h1>Objednávej obědy z Pythonu</h1>
+      <p class="lead">Přihlášení, jídelníček, objednávky, konto, zprávy i hodnocení jídel. Všechno, co umí webová aplikace Strava.cz, jako obyčejné metody.</p>
+      <div class="hero-meta">
+        <span>Instalace <strong>pip install strava-cz-api</strong></span>
+        <span>Demo jídelna <strong>0000</strong></span>
+        <span>Závislosti <strong>requests</strong></span>
+      </div>
+    </header>
+
+    <section id="start">
+      <span class="eyebrow">Začínáme</span>
+      <h2>Rychlý start</h2>
+<pre><code>from strava_cz_api import Strava
+
+with Strava.login("jmeno", "heslo", "0000") as strava:
+    for meal in strava.menu_today():
+        print(meal.meal_type, meal.name, meal.price, "Kč", "✔" if meal.ordered else "")
+
+    print("Konto:", strava.balance(), "Kč")
+    print("Nepřečtené zprávy:", strava.unread_count())</code></pre>
+      <p>Blok <code>with</code> se na konci sám odhlásí. Bez přihlášení jde číst veřejný jídelníček a seznam jídelen přes <a href="#public"><code>Public</code></a>.</p>
+      <div class="note"><p>Každá jídelna má jiné nastavení (počet obědů, názvy chodů, verze softwaru), proto některé metody nemusí fungovat všude. Jídelny na verzi 4.x (S4) nepodporují většinu zápisových endpointů.</p></div>
+    </section>
+
+    <section id="prihlaseni">
+      <span class="eyebrow">Autentizace</span>
+      <h2>Přihlášení</h2>
+      <p>Strava po přihlášení vrátí <code>sid</code> (session ID) a <code>s5url</code> (adresa webové služby jídelny). Klient si obojí drží sám, spolu s údaji o uživateli v <code>strava.user</code> (<code>id</code>, <code>evCislo</code>, <code>konto</code>…).</p>
+<pre><code># 1) Klasicky jménem a heslem
+strava = Strava.login("jmeno", "heslo", "0000", lang="CZ")
+
+# 2) Automatické znovupřihlášení, když SID vyprší (heslo zůstane v paměti procesu)
+strava = Strava.login("jmeno", "heslo", "0000", auto_relogin=True)
+
+# 3) Když už SID máš (třeba z DevTools v prohlížeči)
+strava = Strava(sid="0123…", canteen="0000", s5url="…")</code></pre>
+      <p>Číslo jídelny vždy předávej jako string (<code>"0042"</code>). Když pošleš <code>int</code>, doplní se nuly na čtyři místa. Podporované jazyky: <code>CZ</code>, <code>EN</code>, <code>SK</code>.</p>
+    </section>
+
+    <section id="objednavky">
+      <span class="eyebrow">Pracovní postup</span>
+      <h2>Postup objednávky</h2>
+      <ol class="steps">
+        <li><span>Najdi jídlo v <code>meals()</code> nebo <code>menu_for(den)</code>. Každé má <code>veta</code> (ID políčka) a vlastnosti <code>can_order</code> / <code>can_cancel</code>.</span></li>
+        <li><span>Proveď změny: <code>order()</code>, <code>cancel()</code>, <code>order_day()</code>, <code>change_pickup_place()</code>… Zatím se drží jen na straně Stravy.</span></li>
+        <li><span>Ulož je přes <code>save_orders()</code>. Bez toho se nic neprojeví. Rozmyslel sis to? <code>discard_changes()</code> změny zahodí.</span></li>
+      </ol>
+<pre><code>obed = next(m for m in strava.menu_for("2026-11-02") if m.can_order)
+strava.order(obed)
+strava.save_orders()</code></pre>
+    </section>
+
+    <section id="strava">
+      <span class="eyebrow">Reference</span>
+      <h2>Třída <code>Strava</code></h2>
+      <div class="legend">
+        <span class="tag read">čte</span> jen načítá data
+        <span class="tag write">mění data</span> potřeba <code>save_orders()</code> nebo mění účet
+        <span class="tag s5">jen S5</span> nefunguje na S4 jídelnách
+        <span class="tag new">nové</span> přidáno ve 3.0
+      </div>
+      <div id="strava-groups"></div>
+    </section>
+
+    <section id="public">
+      <span class="eyebrow">Reference</span>
+      <h2>Třída <code>Public</code></h2>
+      <p>Statické metody, nepotřebují přihlášení. Informace o jídelně (<code>canteen()</code>) se cachují, takže <code>s5url()</code> a <code>version()</code> nevolají server znovu.</p>
+      <div id="public-groups"></div>
+    </section>
+
+    <section id="modely">
+      <span class="eyebrow">Data</span>
+      <h2>Modely</h2>
+      <p>Metody jako <code>menu()</code> vrací přesně JSON ze Stravy. Metody <code>meals()</code>, <code>days()</code>, <code>menu_for()</code> vrací pohodlnější objekty <code>Meal</code> a <code>MenuDay</code>. Původní data jsou vždy v <code>meal.raw</code>.</p>
+      <h3>Meal</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Atribut</th><th>Typ</th><th>Z JSON klíče</th><th>Popis</th></tr></thead>
+        <tbody>
+          <tr><td><code>veta</code></td><td>str | None</td><td><code>veta</code></td><td>ID políčka pro objednávku</td></tr>
+          <tr><td><code>date</code></td><td>date</td><td><code>datum</code></td><td>den výdeje</td></tr>
+          <tr><td><code>name</code></td><td>str</td><td><code>nazev</code></td><td>název jídla</td></tr>
+          <tr><td><code>description</code></td><td>str</td><td><code>delsiPopis</code> / <code>popis</code></td><td>delší popis</td></tr>
+          <tr><td><code>course</code></td><td>str</td><td><code>druh_popis</code></td><td>část (Polévka, Oběd 1…)</td></tr>
+          <tr><td><code>meal_type</code></td><td>str</td><td><code>druh_chod</code></td><td>chod (Snídaně, Oběd…)</td></tr>
+          <tr><td><code>chod</code></td><td>str</td><td><code>chod</code></td><td>A snídaně, B svačina, C oběd, D svačina, E večeře, F druhá večeře</td></tr>
+          <tr><td><code>druh</code>, <code>menu_number</code></td><td>str</td><td><code>druh</code>, <code>cisloJidelnicku</code></td><td>potřeba pro detail a hodnocení</td></tr>
+          <tr><td><code>price</code></td><td>float | None</td><td><code>cena</code></td><td>cena v Kč</td></tr>
+          <tr><td><code>count</code> / <code>ordered</code></td><td>int / bool</td><td><code>pocet</code></td><td>počet objednaných kusů</td></tr>
+          <tr><td><code>is_soup</code></td><td>bool</td><td><code>polevka</code></td><td>polévka v ceně oběda</td></tr>
+          <tr><td><code>allergens</code></td><td>list[(kód, název)]</td><td><code>alergeny</code></td><td>např. <code>("01", "Obiloviny obsahující lepek")</code></td></tr>
+          <tr><td><code>restrictions</code></td><td>dict</td><td><code>omezeniObj</code></td><td><code>obj</code>, <code>zm</code>, <code>bur</code>: C = nelze, I = vždy přihlášeno, V = svátek</td></tr>
+          <tr><td><code>order_deadline</code>, <code>cancel_deadline</code></td><td>datetime | None</td><td><code>casKonec</code>, <code>casOdhlaseni</code></td><td>uzávěrky</td></tr>
+          <tr><td><code>can_order</code>, <code>can_cancel</code></td><td>bool</td><td>vypočteno</td><td>z omezení a uzávěrek v okamžiku čtení</td></tr>
+          <tr><td><code>pickup_place</code>, <code>diet</code>, <code>images</code></td><td>str / list</td><td><code>vydejniMisto</code>, <code>diety</code>, <code>obrazky</code></td><td>výdejní místo, dieta, obrázky</td></tr>
+        </tbody>
+      </table></div>
+      <h3>MenuDay</h3>
+      <p><code>date</code>, <code>meals: list[Meal]</code> a vlastnost <code>ordered</code> (objednaná jídla toho dne). Funkce <code>days_from_menu(data)</code> a <code>meals_from_menu(data)</code> převedou libovolnou odpověď <code>objednavky</code> nebo <code>jidelnicky</code>.</p>
+    </section>
+
+    <section id="cli">
+      <span class="eyebrow">Terminál</span>
+      <h2>Příkazová řádka</h2>
+      <p>Po instalaci je k dispozici příkaz <code>strava-cz</code> (případně <code>python -m strava_cz_api</code>). Přihlašovací údaje bere z proměnných <code>STRAVA_USER</code>, <code>STRAVA_PASSWORD</code>, <code>STRAVA_CANTEEN</code>, jinak se zeptá. Přepínač <code>--json</code> vypíše strojově čitelný výstup.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Příkaz</th><th>Co dělá</th></tr></thead>
+        <tbody>
+          <tr><td><code>strava-cz menu [--date 2026-11-02] [--ordered]</code></td><td>jídelníček; ✔ objednáno, · lze objednat</td></tr>
+          <tr><td><code>strava-cz order 172 173</code></td><td>přihlásí jídla podle <code>veta</code> a uloží</td></tr>
+          <tr><td><code>strava-cz cancel 172</code></td><td>odhlásí jídla a uloží</td></tr>
+          <tr><td><code>strava-cz order-day 2026-11-02</code></td><td>přihlásí celé dny</td></tr>
+          <tr><td><code>strava-cz cancel-day 2026-11-02</code></td><td>odhlásí celé dny (nemoc, výlet)</td></tr>
+          <tr><td><code>strava-cz balance</code></td><td>stav konta</td></tr>
+          <tr><td><code>strava-cz history [2026-10-01]</code></td><td>historie za měsíc (JSON)</td></tr>
+          <tr><td><code>strava-cz payments</code> / <code>messages</code></td><td>platby / zprávy (JSON)</td></tr>
+          <tr><td><code>strava-cz ics obedy.ics</code></td><td>objednané obědy do kalendáře</td></tr>
+          <tr><td><code>strava-cz canteens plzeň</code></td><td>vyhledá jídelnu, bez přihlášení</td></tr>
+          <tr><td><code>strava-cz public-menu 0000</code></td><td>veřejný jídelníček, bez přihlášení</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="chyby">
+      <span class="eyebrow">Error handling</span>
+      <h2>Chyby</h2>
+      <p>Všechny výjimky dědí z <code>StravaError</code> a mají atributy <code>number</code> (číslo chyby Stravy), <code>message</code> (text ze Stravy) a <code>response</code> (celá odpověď). Síťové problémy vyhazují <code>StravaConnectionError</code>.</p>
+<pre><code>from strava_cz_api import StravaError, SessionExpiredError
+
+try:
+    strava.menu()
+except SessionExpiredError:
+    ...  # SID vypršelo, přihlas se znovu
+except StravaError as e:
+    print(e.number, e.message)</code></pre>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Číslo</th><th>Výjimka</th><th>Význam</th></tr></thead>
+        <tbody id="errors"></tbody>
+      </table></div>
+    </section>
+
+    <section id="migrace">
+      <span class="eyebrow">Upgrade</span>
+      <h2>Migrace z 2.x</h2>
+      <p>Staré třídy <code>Api</code> a <code>Auth</code> i staré názvy metod fungují dál, jen vypíšou <code>DeprecationWarning</code> s názvem nové metody. Hlavní rozdíly: všechno jde přes jednu HTTP session (cookies se drží samy), metody vrací vždy jen data, nikdy dvojici <code>(data, cookie)</code>, a <code>logOut()</code> nově opravdu odhlásí (dřív volal logovací endpoint <code>/api/logger</code>).</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>2.x</th><th>3.0</th></tr></thead>
+        <tbody id="migration"></tbody>
+      </table></div>
+    </section>
+
+    <section id="verze">
+      <span class="eyebrow">Kompatibilita</span>
+      <h2>Verze Stravy</h2>
+      <p>Verzi jídelny zjistíš přes <code>Public.version("0000")</code>.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Verze</th><th>Stav</th><th>Poznámka</th></tr></thead>
+        <tbody>
+          <tr><td class="num">5.15</td><td>neotestováno</td><td></td></tr>
+          <tr><td class="num">5.14</td><td>funkční</td><td>burza není implementovaná</td></tr>
+          <tr><td class="num">5.13</td><td>funkční</td><td>stavěno na této verzi; od 5.13 jde <code>set_language()</code></td></tr>
+          <tr><td class="num">5.11 – 5.12</td><td>neotestováno</td><td></td></tr>
+          <tr><td class="num">4.51</td><td>problémy</td><td>nefunguje <code>canteen()</code>, <code>protocol()</code>, objednávky, <code>save_orders()</code> (S4 potřebuje XML se změnami); demo jídelna 0000</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Zatím neimplementováno</h3>
+      <p class="prose">Burza (nabídka a poptávka jídel), změna nastavení strávníka (<code>ulozNastaveniKlienta</code>, <code>zapisNastaveniS5</code>), správa e-mailového účtu Strava (změna hesla, smazání účtu), stránky pro personál jídelny (<code>patron*</code>, <code>editaceJidelnicku</code>, <code>poctyJidel</code>).</p>
+    </section>
+
+    <footer>Neoficiální projekt, není spojený s firmou VIS ani Strava.cz. Demo účet si vytvoříš na strava.cz/strava/Stravnik/Demo (smaže se začátkem měsíce).</footer>
+  </main>
+</div>
+
+<script>
+const R = "read", W = "write", S5 = "s5", N = "new", L = "local";
+
+const STRAVA = [
+  ["Session", [
+    {sig: "Strava.login", args: "(username, password, canteen, lang=\"CZ\", remember=True, auto_relogin=False, timeout=30)", ep: "login", tags: [R],
+     desc: "Přihlásí uživatele a vrátí připravený klient. remember odpovídá „Zůstat přihlášen“. S auto_relogin=True se klient při vypršení SID jednou sám znovu přihlásí.",
+     ret: "Strava", ex: "strava = Strava.login(\"jmeno\", \"heslo\", \"0000\")"},
+    {sig: "Strava", args: "(sid, canteen, s5url=\"\", lang=\"CZ\", ignore_cert=\"false\", user=None, timeout=30)", ep: "", tags: [L],
+     desc: "Vytvoří klient z už existujícího SID, bez přihlašování.", ret: "Strava"},
+    {sig: "logout", args: "()", ep: "logOut", tags: [N],
+     desc: "Odhlásí uživatele, SID přestane platit. Volá se samo na konci bloku with.", ret: "dict"},
+    {sig: "relogin", args: "()", ep: "login", tags: [N],
+     desc: "Znovu se přihlásí uloženými údaji. Jen pro klient vytvořený s auto_relogin=True.", ret: "dict"},
+    {sig: "set_language", args: "(lang)", ep: "zmenJazyk", tags: [N, S5],
+     desc: "Přepne jazyk (CZ, EN, SK) na straně Stravy i v klientovi. Jídelny od verze 5.13.", ret: "dict"},
+  ]],
+  ["Jídelníček", [
+    {sig: "menu", args: "()", ep: "objednavky", tags: [R],
+     desc: "Celý jídelníček včetně stavu objednávek. Každá tabulka table0, table1… je jeden den.",
+     ret: "dict – {\"table0\": [...], ...}"},
+    {sig: "meals", args: "()", ep: "objednavky", tags: [R, N],
+     desc: "Všechna jídla jako objekty Meal, seřazená podle data.", ret: "list[Meal]",
+     ex: "for m in strava.meals():\n    print(m.date, m.name, m.can_order)"},
+    {sig: "days", args: "()", ep: "objednavky", tags: [R, N],
+     desc: "Jídelníček rozdělený na dny.", ret: "list[MenuDay]"},
+    {sig: "menu_for", args: "(day)", ep: "objednavky", tags: [R, N],
+     desc: "Jídla na konkrétní den. Přijme date, \"2026-11-02\" i \"02.11.2026\".", ret: "list[Meal]"},
+    {sig: "menu_today", args: "()", ep: "objednavky", tags: [R, N],
+     desc: "Dnešní jídla. O víkendu bývá prázdné.", ret: "list[Meal]"},
+    {sig: "ordered_meals", args: "()", ep: "objednavky", tags: [R, N],
+     desc: "Jen objednaná jídla.", ret: "list[Meal]"},
+    {sig: "meal_details", args: "(meal, weights=True, rating=True)", ep: "orderModalDetails", tags: [R, N],
+     desc: "Detail jídla: gramáže, nutriční hodnoty a hodnocení, pokud je jídelna vyplňuje.", ret: "dict",
+     ex: "detail = strava.meal_details(strava.menu_today()[0])"},
+  ]],
+  ["Objednávky", [
+    {sig: "order", args: "(meal)", ep: "pridejJidloS5", tags: [W],
+     desc: "Přihlásí jídlo. meal může být veta, Meal nebo dict. Potom zavolej save_orders().", ret: "dict"},
+    {sig: "cancel", args: "(meal)", ep: "pridejJidloS5", tags: [W],
+     desc: "Odhlásí jídlo. Potom zavolej save_orders().", ret: "dict"},
+    {sig: "set_meal_count", args: "(meal, count)", ep: "pridejJidloS5", tags: [W],
+     desc: "Nastaví počet kusů (0 = odhlásit, 1 = přihlásit, víc kusů jen kde to jídelna dovolí).", ret: "dict"},
+    {sig: "order_day", args: "(day)", ep: "objednejDenS5", tags: [W],
+     desc: "Přihlásí celý den.", ret: "dict"},
+    {sig: "cancel_day", args: "(day)", ep: "objednejDenS5", tags: [W],
+     desc: "Odhlásí celý den, třeba při nemoci.", ret: "dict",
+     ex: "strava.cancel_day(\"2026-11-02\")\nstrava.save_orders()"},
+    {sig: "set_day", args: "(day, count)", ep: "objednejDenS5", tags: [W],
+     desc: "Obecná verze order_day / cancel_day.", ret: "dict"},
+    {sig: "change_pickup_place", args: "(meal, place)", ep: "zmenVydejniMisto", tags: [W, N, S5],
+     desc: "Změní výdejní místo (u škol s více jídelnami). Dostupná místa jsou v meal.raw[\"vydejniMisto\"].", ret: "dict"},
+    {sig: "change_diet", args: "(meal, diet)", ep: "zmenDietu", tags: [W, N, S5],
+     desc: "Změní dietu u jídla. Možnosti jsou v meal.raw[\"diety\"].", ret: "dict"},
+    {sig: "save_orders", args: "()", ep: "saveOrders", tags: [W, S5],
+     desc: "Uloží všechny provedené změny. Bez toho se objednávky neprojeví. Odpověď obsahuje nový stav konta.", ret: "dict"},
+    {sig: "discard_changes", args: "()", ep: "resetTabulekS5", tags: [W, N],
+     desc: "Zahodí neuložené změny a znovu načte data, stejně jako tlačítko Zrušit na webu.", ret: "dict"},
+    {sig: "rate_meal", args: "(meal, rating, note=\"\")", ep: "zapisHodnoceniJidel", tags: [W, N, S5],
+     desc: "Ohodnotí jídlo (hvězdičky jako na webu). Potřebuje Meal nebo dict z menu().", ret: "dict"},
+  ]],
+  ["Účet a peníze", [
+    {sig: "balance", args: "()", ep: "nactiVlastnostiPA", tags: [R, N],
+     desc: "Aktuální stav konta v Kč.", ret: "float | None"},
+    {sig: "history", args: "(month=None)", ep: "historieKlienta", tags: [R],
+     desc: "Objednávky a pohyby na kontě za měsíc. Stačí libovolný den v měsíci, výchozí je aktuální měsíc.", ret: "dict"},
+    {sig: "payments", args: "()", ep: "platby", tags: [R],
+     desc: "Platby a pohyby na účtu.", ret: "dict"},
+    {sig: "payment_qr", args: "()", ep: "qr", tags: [R, N, S5],
+     desc: "Údaje pro dobití konta: číslo účtu, variabilní symbol.", ret: "dict"},
+    {sig: "issued_meals", args: "()", ep: "vydej", tags: [R],
+     desc: "Seznam vydaných jídel (co sis opravdu vyzvedl).", ret: "dict"},
+    {sig: "user_info", args: "()", ep: "userInfo", tags: [R],
+     desc: "Veškeré údaje o strávníkovi: jméno, e-mail, nastavení, alergeny.", ret: "dict"},
+    {sig: "properties", args: "(reset_tables=False)", ep: "nactiVlastnostiPA", tags: [R],
+     desc: "Vlastnosti uživatele a jídelny. reset_tables=True nechá Stravu znovu načíst tabulky (trvá dlouho).", ret: "dict"},
+    {sig: "username", args: "", ep: "", tags: [L],
+     desc: "Uživatelské jméno (ID strávníka). Vlastnost, ne metoda; bere se z přihlášení.", ret: "str"},
+    {sig: "protocol", args: "()", ep: "getProtokol", tags: [R, S5],
+     desc: "Protokol změn objednávek.", ret: "dict"},
+    {sig: "enrollment_form", args: "()", ep: "nactiZapisovyListek", tags: [R, N],
+     desc: "Přihláška ke stravování (zápisový lístek).", ret: "dict"},
+    {sig: "attendance", args: "(date_from=None, date_to=None, bakalar_id=None)", ep: "attendance", tags: [R, N],
+     desc: "Docházka z Bakalářů. Jen u jídelen propojených s Bakaláři; výchozí je aktuální měsíc.", ret: "dict"},
+    {sig: "canteen", args: "()", ep: "jidelnaS5", tags: [R, S5],
+     desc: "Informace o jídelně ze systému S5.", ret: "dict"},
+  ]],
+  ["Zprávy", [
+    {sig: "messages", args: "(message_type=\"\")", ep: "messagesGetList", tags: [R],
+     desc: "Seznam zpráv od jídelny a Strava.cz.", ret: "dict"},
+    {sig: "unread_count", args: "()", ep: "messagesGetAmount", tags: [R, N],
+     desc: "Počet nepřečtených zpráv (jídelna + marketing).", ret: "int"},
+    {sig: "message", args: "(message_id)", ep: "messagesGetDetail", tags: [R, N],
+     desc: "Text jedné zprávy (HTML).", ret: "dict"},
+    {sig: "mark_read", args: "(*message_ids)", ep: "messagesSetRead", tags: [W, N],
+     desc: "Označí zprávy jako přečtené.", ret: "dict"},
+    {sig: "confirm_notice", args: "()", ep: "potvrdUpozorneni", tags: [W, N],
+     desc: "Potvrdí upozornění od jídelny (to, které web ukazuje po přihlášení).", ret: "dict"},
+  ]],
+  ["Extra", [
+    {sig: "export_ics", args: "(path=None, only_ordered=True)", ep: "", tags: [L, N],
+     desc: "Vyexportuje objednaná jídla do kalendáře (.ics) pro Google, Outlook nebo iPhone.", ret: "str – obsah souboru",
+     ex: "strava.export_ics(\"obedy.ics\")"},
+  ]],
+];
+
+const PUBLIC = [
+  ["Jídelny", [
+    {sig: "Public.canteens", args: "()", ep: "zarAMesta", tags: [R],
+     desc: "Seznam všech jídelen (přes 3 000).", ret: "list[dict]"},
+    {sig: "Public.search_canteens", args: "(text)", ep: "zarAMesta", tags: [R, N],
+     desc: "Hledá podle čísla, názvu, ulice nebo města, bez ohledu na diakritiku.", ret: "list[{number, name, street, city}]",
+     ex: "Public.search_canteens(\"plzen\")[0]\n# {'number': '0000', 'name': 'DEMO zařízení…', 'city': 'Plzeň', ...}"},
+    {sig: "Public.canteen", args: "(cislo)", ep: "s4Polozky", tags: [R],
+     desc: "Název, adresa, kontakt, číslo účtu, GPS, verze a s5url jídelny. Výsledek se cachuje.", ret: "dict"},
+    {sig: "Public.s5url", args: "(cislo)", ep: "s4Polozky", tags: [R],
+     desc: "Adresa webové služby jídelny. U S4 jídelen prázdná.", ret: "str"},
+    {sig: "Public.version", args: "(cislo)", ep: "s4Polozky", tags: [R],
+     desc: "Verze softwaru jídelny, např. \"5.14\".", ret: "str"},
+    {sig: "Public.version_info", args: "(cislo, lang=\"CZ\")", ep: "verzeS5", tags: [R, N, S5],
+     desc: "Verze S5 a čas poslední aktualizace dat jídelny.", ret: "dict"},
+    {sig: "Public.clear_cache", args: "()", ep: "", tags: [L],
+     desc: "Smaže cache informací o jídelnách.", ret: "None"},
+  ]],
+  ["Veřejný jídelníček", [
+    {sig: "Public.menu", args: "(cislo, lang=\"CZ\")", ep: "jidelnicky", tags: [R],
+     desc: "Jídelníček bez přihlášení.", ret: "list[dict]"},
+    {sig: "Public.menu_days", args: "(cislo, lang=\"CZ\")", ep: "jidelnicky", tags: [R, N],
+     desc: "Veřejný jídelníček rozdělený na dny, jako objekty.", ret: "list[MenuDay]"},
+    {sig: "Public.menu_page", args: "(cislo, lang=\"CZ\")", ep: "jidelnickyPage", tags: [R, N],
+     desc: "Jídelna i jídla v jednom requestu, stejná data jako veřejná stránka jídelníčku.", ret: "dict – {canteen, meals, objednavkyOdDo}"},
+  ]],
+];
+
+const ERRORS = [
+  ["6", "JidelnaNenalezenaError", "chybné číslo jídelny"],
+  ["13, 90, 1009–1011, 1014, 10104", "SessionExpiredError", "relace skončila, přihlas se znovu"],
+  ["14", "NelzeVytvoritSID", "Strava nevytvořila session"],
+  ["15", "ChybneSID", "chybné SID (dědí ze SessionExpiredError)"],
+  ["20", "UserBlockedError", "strávník je zablokován, nesmí objednávat"],
+  ["30", "S5AndJidelnaPayload", "nesedí s5url a číslo jídelny"],
+  ["35", "NelzePrihlasit", "přihlášení není možné"],
+  ["998", "Timeout", "vypršel čas na straně Stravy"],
+  ["3002", "BackendError", "software jídelny je mimo provoz nebo endpoint na této verzi neexistuje"],
+  ["10102", "AuthError", "neplatné SID, typicky po 60 dnech nečinnosti (dědí ze SessionExpiredError)"],
+  ["13201", "S5Payload", "špatná s5url"],
+  ["13404", "ChybnyUzivatel", "chybné uživatelské jméno"],
+  ["13405", "ChybneHesloError", "chybné heslo"],
+  ["13410", "LoginTimeout", "příliš mnoho pokusů, přihlášení blokováno na 2 h"],
+  ["ostatní ≥ 99", "ApiError", "jiná chyba ze Stravy"],
+  ["–", "StravaConnectionError", "síťová chyba, server neodpověděl"],
+];
+
+const MIGRATION = [
+  ["Auth.login(u, p, j) + Auth.getCredentials(data) + Api(sid, s5url, j)", "Strava.login(u, p, j)"],
+  ["api.getJidelnicekAll()", "strava.menu()"],
+  ["api.getJidelnicekToday()", "strava.menu_today() (nově opravdu dnešní den, ne table0)"],
+  ["api.getInfo(resetTables)", "strava.properties(reset_tables)"],
+  ["api.userInfo()", "strava.user_info()"],
+  ["api.getUsername()", "strava.username"],
+  ["api.getJidelna()", "strava.canteen()"],
+  ["api.getHistorieKlienta(date)", "strava.history(month)"],
+  ["api.getPlatby()", "strava.payments()"],
+  ["api.getMessages()", "strava.messages()"],
+  ["api.getProtokol()", "strava.protocol()"],
+  ["api.getVydej()", "strava.issued_meals()"],
+  ["api.postJidlo(veta, 1 / 0)", "strava.order(veta) / strava.cancel(veta)"],
+  ["api.postDen(datum, 1 / 0)", "strava.order_day(datum) / strava.cancel_day(datum)"],
+  ["api.postOrders()", "strava.save_orders()"],
+  ["api.resetChanges()", "strava.discard_changes()"],
+  ["api.logOut()", "strava.logout()"],
+  ["Public.getJidelny()", "Public.canteens()"],
+  ["Public.getJidelna(j)", "Public.canteen(j)"],
+  ["Public.getJidelnicek(j, lang)", "Public.menu(j, lang)"],
+  ["Public.getS5url(j) / Public.getVersion(j)", "Public.s5url(j) / Public.version(j)"],
+];
+
+const TAG_TEXT = {read: "čte", write: "mění data", s5: "jen S5", new: "nové", local: "lokálně"};
+
+function el(tag, attrs = {}, ...children) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === "class") node.className = value; else node.setAttribute(key, value);
+  }
+  for (const child of children) if (child != null) node.append(child);
+  return node;
+}
+
+function slug(text) {
+  return text.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+function renderGroups(target, groups, prefix) {
+  const root = document.getElementById(target);
+  const toc = document.getElementById("toc");
+  const anchor = toc.querySelector(`a[href="#${prefix}"]`).parentElement;
+  let after = anchor;
+  for (const [title, methods] of groups) {
+    const group = el("div", {class: "group", id: `${prefix}-${slug(title)}`}, el("h3", {}, title));
+    for (const m of methods) {
+      const id = `${prefix}-${slug(m.sig)}`;
+      const head = el("div", {class: "method-head"},
+        el("span", {class: "sig"}, m.sig, el("span", {class: "args"}, m.args)),
+        el("span", {class: "leader", "aria-hidden": "true"}),
+        m.ep ? el("span", {class: "endpoint"}, "/api/" + m.ep) : el("span", {class: "endpoint"}, "bez requestu"));
+      const tags = el("div", {class: "tags"}, ...m.tags.map(t => el("span", {class: "tag " + t}, TAG_TEXT[t])));
+      const ret = el("div", {class: "ret"}, "Vrací ", el("code", {}, m.ret));
+      const item = el("article", {class: "method", id, "data-search": [m.sig, m.args, m.ep, m.desc, title].join(" ").toLowerCase()},
+        head, el("p", {}, m.desc), tags, ret);
+      if (m.ex) item.append(el("details", {}, el("summary", {}, "Ukázka"), el("pre", {}, el("code", {}, m.ex))));
+      group.append(item);
+      const li = el("li", {class: "sub", "data-for": id}, el("a", {href: "#" + id}, m.sig.replace("Public.", "") + (m.args ? "()" : "")));
+      after.after(li); after = li;
+    }
+    root.append(group);
+  }
+}
+
+renderGroups("strava-groups", STRAVA, "strava");
+renderGroups("public-groups", PUBLIC, "public");
+
+document.getElementById("errors").append(...ERRORS.map(([n, cls, text]) =>
+  el("tr", {}, el("td", {class: "num"}, n), el("td", {}, el("code", {}, cls)), el("td", {}, text))));
+document.getElementById("migration").append(...MIGRATION.map(([a, b]) =>
+  el("tr", {}, el("td", {}, el("code", {}, a)), el("td", {}, el("code", {}, b)))));
+
+const search = document.getElementById("q");
+search.addEventListener("input", () => {
+  const q = search.value.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  for (const group of document.querySelectorAll(".group")) {
+    let visible = 0;
+    for (const item of group.querySelectorAll(".method")) {
+      const hay = item.dataset.search.normalize("NFD").replace(/[̀-ͯ]/g, "");
+      const show = !q || hay.includes(q);
+      item.hidden = !show;
+      document.querySelector(`li[data-for="${item.id}"]`).hidden = !show;
+      if (show) visible++;
+    }
+    group.hidden = visible === 0;
+  }
+});
+</script>
+</body>
+</html>

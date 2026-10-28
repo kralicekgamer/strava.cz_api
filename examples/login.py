@@ -1,25 +1,20 @@
 # made by OpiKula
-from strava_cz_api import Api, Auth, StravaError
 import getpass
 
-# Ziskame od uzivatele credentials
+from strava_cz_api import Strava, StravaError
+
 username = input("Zadej zde svoje uživatelské jméno: ")
 password = getpass.getpass("Zadej zde svoje heslo: ")
 jidelna = input("Zadej zde číslo jídelny: ")
 
-# Poslani post requestu a getnuti SID a s5url
 try:
-    data, _ = Auth.login(username, password, jidelna)
+    strava = Strava.login(username, password, jidelna)
+except StravaError as error:
+    print("Přihlášení selhalo:", error.message)
+    raise SystemExit(1)
 
-except StravaError:
-    print("Chybné heslo")
-    exit()
-
-# ziskame sid a s5url
-sid, s5url = Auth.getCredentials(data)
-
-# Inicializujeme spojeni a vytiskneme jidelnicek
-example = Api(sid, s5url, jidelna)
-
-
-print(example.getJidelnicekToday())
+# `with` se na konci sám odhlásí
+with strava:
+    for meal in strava.menu_today():
+        stav = "objednáno" if meal.ordered else "neobjednáno"
+        print(f"{meal.meal_type}: {meal.name} ({stav})")

@@ -2,3 +2,7 @@ test.py
 __pycache__/
 .directory
 endpoint
+*.egg-info/
+build/
+dist/
+*.ics

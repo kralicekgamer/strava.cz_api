@@ -1,168 +1,128 @@
 # Strava.cz rest API
-> ⚠️ **UPOZORNĚNÍ:** Strava.cz má vysoce proměnlivé prostředí (každá jídelna má jiný počet obědů, jiné názvy chodů apod.) z toho důvodu toto API **není plně univerzální**. I když jsem se snažil ho napsat univerzálně, nějaké metody nemusí plně fungovat a bude to vyžadovat vaší opravu. 
+> ⚠️ **UPOZORNĚNÍ:** Strava.cz má vysoce proměnlivé prostředí (každá jídelna má jiný počet obědů, jiné názvy chodů apod.) z toho důvodu toto API **není plně univerzální**. Některé metody nemusí na tvé jídelně fungovat.
 
-Toto je **neoficiální** REST api pro stravu.cz. V tomto dokumentu je popsáno vše co potřebuješ vědet o tomto API. Je zde také vysvětleno dopodrobna jak to celé funguje.
+Toto je **neoficiální** Python API pro [app.strava.cz](https://app.strava.cz). Kompletní seznam metod s popisem, endpointy a ukázkami je v **[HTML dokumentaci](docs/index.html)**.
 
 ## Instalace
 ```bash
-pip install strava_cz_api
+pip install strava-cz-api
 ```
 
 | Verze | Stav | Poznámka |
 | --- | --- | --- |
 | **1.X** | ❌ | Stará verze bez error handlingu. |
-| **2.0 - 2.5.2** | ⚠️ | Nedoladěné verze. Hodně chyb.
-| **2.5.3 - 2.5.7** | ✅
-| **2.5.8** | 🚧 | In development
+| **2.0 - 2.5.2** | ⚠️ | Nedoladěné verze. Hodně chyb. |
+| **2.5.3 - 2.5.7** | ✅ | |
+| **3.0.0** | 🚧 | Nové API, staré metody fungují jako deprecated aliasy. |
 
-## Autentizace
-K API endpointům potřebuješ **SID** a **s5url**. Můžeš si je získat sám z dev tools v prohlížeči, ale nejlepší cesta je pomocí metod: `Auth.login()` a `Auth.getCredentials()`:
-
+## Rychlý start
 ```py
-from strava_cz_api import Auth
+from strava_cz_api import Strava
 
-data, cookie = Auth.login("demo", "demo", "0000")
-sid, s5url = Auth.getCredentials(data)
+with Strava.login("jmeno", "heslo", "0000") as strava:
+    for meal in strava.menu_today():
+        print(meal.meal_type, meal.name, meal.price, "Kč", "✔" if meal.ordered else "")
+
+    print("Konto:", strava.balance(), "Kč")
 ```
 
-> ℹ️ Podporované jazyky: `CZ`, `EN`, `SK`.
+`with` se na konci sám odhlásí. Pokud už máš SID, klient vytvoříš i přímo: `Strava(sid, "0000", s5url)`.
 
-> ℹ️ `Auth.login()` vrací `cookie` a JSON data; `Auth.getCredentials()` z nich vytáhne `sid` a `s5url`.
+> ℹ️ Číslo jídelny posílej jako string (`"0042"`). Podporované jazyky: `CZ`, `EN`, `SK`.
 
-## Inicializace API
-```py
-from strava_cz_api import Api
-
-api = Api(
-    sid="00000000000000000000000000000000",
-    s5url="", 
-    cislo_jidelny="0000"
-)
-```
-
-> ℹ️ `s5url` může být hash, url či prázdné. Někdy se stane, že musí být spravný input, někdy může být prázné. Líší se od verze stravy. Většinou verze s4 s ním nepracuje.
-
-
-## Veřejné endpointy (bez přihlášení)
-
-| Metoda | Popis | Poznámka |
-| --- | --- | --- |
-| `getJidelny()` | Seznam jídelen
-| `getJidelna()` | Informace o jídělne
-| `getS5url()` | URL jídelny
-| `getJidelnicek()` | Get veřejného jídelníčku 
-| `getVersion()` | Verze softwaru jídelny 
-
-## Autentizované endpointy (Api)
-| Metoda | Popis | Poznámka |
-| --- | --- | --- |
-| `getJidelnicekToday()` | Dnešní jídelníček | Vrací list (`table0`) |
-| `getJidelnicekAll()` | Kompletní jídelníček 
-| `getInfo()` | Informace o uživateli | Upravený payload. Více pod tabulkou.
-| `userInfo()` | Veškeré info o uživateli |
-| `getUsername()` | Uživatelské jméno | Vytahuje z `getInfo()` |
-| `getJidelna()` | Informace o jídelně 
-| `getHistorieKlienta(date)` | Historie objednávek za měsíc | `date` = první den měsíce (např. `2025-01-01`) |
-| `getPlatby()` | Pohyby na účtu
-| `getMessages()` | Zprávy pro uživatele 
-| `getProtokol()` | Vrátí protokol
-| `getVydej()` | Vrátí list vydaných jídel.
-| `postJidlo(veta, stav)` | Přihlásit/odhlásit jídlo | `stav`: 1 přihlásit, 0 odhlásit |
-| `postDen(datum, stav)` | Přihlásit/odhlásit celý den | `datum` ve formátu `YYYY-MM-DD` |
-| `postOrders()` | Uložit změny objednávek | Nutné po `postJidlo`/`postDen` |
-| `resetChanges()` | Resetuje neuložené změny v komunikaci. | Dobré pro zrušení změn při objednávkách
-| `logOut()` | Odhlásí uživatele. | 
-
-> ⚠️ Nevím přesně, co `resetTables` dělá, ale podle mě to resetuje komunikaci na straně Stravy (nějakou DB). U `getInfo` je defaultně nastavený na `false`, protože s `true` to trvá extrémně dlouho. Proto existuje metoda `resetChanges`, která to přímo volá s `true`.
-
-> ℹ️ Je poměrně jedno jestli používáme GET nebo POST, vždy to z nějakého důvodu funguje. Pro lepší logiku v kódu je to rozděleno.
-
-## Filtr
-Filtr pro data existuje, ale bude se dále rozšiřovat. Lze ho importovat (`from strava_cz_api import Filter`), ale zatím není zaručeno, že všude funguje správně.
+## Objednávky
+Změny se ukládají ve dvou krocích – nejdřív změna, pak uložení:
 
 ```py
-from strava_cz_api import Filter
-
-filtrovano = Filter.filter_json(["veta"], api.getJidelnicekAll())
-print(filtrovano)
+obed = next(m for m in strava.menu_for("2026-11-02") if m.can_order)
+strava.order(obed)          # nebo cancel(), order_day(), cancel_day(), change_pickup_place()…
+strava.save_orders()        # bez toho se nic neprojeví
+# strava.discard_changes()  # zahodí neuložené změny
 ```
 
-## Objednávky – správný postup
-> ⚠️ Postup u každé jídelný se může lišit. 
-Změny objednávek se ukládají ve dvou krocích:
-1. Provedení změn (`postJidlo` nebo `postDen`)
-2. Uložení (`postOrders`)
+## Přehled metod
 
-```py
-data, cookie = api.postJidlo(5, 1)
+**`Strava` (přihlášený klient)**
 
-data, cookie = api.postOrders()
+| Oblast | Metody |
+| --- | --- |
+| Session | `Strava.login()`, `logout()`, `relogin()`, `set_language()` |
+| Jídelníček | `menu()`, `meals()`, `days()`, `menu_for(day)`, `menu_today()`, `ordered_meals()`, `meal_details(meal)` |
+| Objednávky | `order()`, `cancel()`, `set_meal_count()`, `order_day()`, `cancel_day()`, `change_pickup_place()`, `change_diet()`, `save_orders()`, `discard_changes()`, `rate_meal()` |
+| Účet | `balance()`, `history(month)`, `payments()`, `payment_qr()`, `issued_meals()`, `user_info()`, `properties()`, `username`, `protocol()`, `enrollment_form()`, `attendance()`, `canteen()` |
+| Zprávy | `messages()`, `unread_count()`, `message(id)`, `mark_read(*ids)`, `confirm_notice()` |
+| Extra | `export_ics(path)` – objednané obědy do kalendáře |
+
+**`Public` (bez přihlášení)**: `canteens()`, `search_canteens(text)`, `canteen(cislo)`, `s5url()`, `version()`, `version_info()`, `menu()`, `menu_days()`, `menu_page()`.
+
+Metody jako `menu()` vrací přesně JSON ze Stravy (dict). `meals()`, `days()`, `menu_for()` vrací objekty `Meal` / `MenuDay` (datum jako `date`, cena jako `float`, `ordered`, `can_order`, `can_cancel`, `allergens`…). Původní data jsou v `meal.raw`.
+
+## Příkazová řádka
+```bash
+strava-cz canteens plzen
+```
+```bash
+strava-cz menu --date 2026-11-02
+```
+```bash
+strava-cz order 172 173
 ```
 
-Nebo lze resetovat změny:
-```py
-data, cookie = api.resetChanges()
-```
-
-## Návratové hodnoty
-- Většina metod vrací dict.
-- POST metody `postJidlo()`, `postDen()`, `postOrders()`, `resetChanges()` a `Auth.login()` vrací **dvojici `(data, cookie)`** z POST odpovědi.
-  - `data` - JSON response z API
-  - `cookie` - nový cookie pro další požadavky (automaticky se aktualizuje v Api objektu) 
-
-> ⚠️ Je tedy potřeba buďto nepoužívat návratové hodnoty nebo jednu z nich vrátit do prázdné proměnné (např. _). Pokud vrátíte do jedné hodnoty vrátí se vám tupple a kód pravděpodobně někde spadne.
+Další příkazy: `cancel`, `order-day`, `cancel-day`, `balance`, `history`, `payments`, `messages`, `ics`, `public-menu`. Přihlašovací údaje se berou z `STRAVA_USER`, `STRAVA_PASSWORD`, `STRAVA_CANTEEN`, jinak se program zeptá. `--json` vypíše JSON.
 
 ## Chyby
-- Error handling je dostupný přes výjimky, které lze importovat: `from strava_cz_api import StravaError`.
-- Při neúspěšném požadavku se vyhazuje `ConnectionError`.
+Všechny výjimky dědí z `StravaError` a mají `number`, `message` a `response`. Vypršelé SID vyhodí `SessionExpiredError` (a s `Strava.login(..., auto_relogin=True)` se klient sám znovu přihlásí). Síťové chyby vyhazují `StravaConnectionError`.
 
 | Číslo chyby | Název chyby | Popis |
 | --- | --- | --- |
 | `6` | `JidelnaNenalezenaError` | Chybné číslo jídelny |
-| `14` | `NelzeVytvoritSID` |  |
-| `15` | `ChybneSID` | Chybný SID token při autentizaci |
+| `13, 90, 1009–1011, 1014, 10104` | `SessionExpiredError` | Relace skončila |
+| `14` | `NelzeVytvoritSID` | |
+| `15` | `ChybneSID` | Chybný SID token |
+| `20` | `UserBlockedError` | Strávník je zablokován |
 | `30` | `S5AndJidelnaPayload` | Nesedí S5URL a číslo jídelny |
 | `35` | `NelzePrihlasit` | |
 | `998` | `Timeout` | |
-| `3002` | `BackendError` | Endpoint na této verzi neexistuje. |
-| `10102` | `AuthError` | |
+| `3002` | `BackendError` | Software jídelny je mimo provoz / endpoint na této verzi neexistuje |
+| `10102` | `AuthError` | Neplatné SID (např. po 60 dnech nečinnosti) |
 | `13201` | `S5Payload` | Špatná S5URL |
 | `13404` | `ChybnyUzivatel` | Chybné uživatelské jméno |
 | `13405` | `ChybneHesloError` | Chybné heslo |
 | `13410` | `LoginTimeout` | Login timeout na 2 h |
-| `99+` | `ApiError` | Chyba odchycena u stravy.cz |
+| ostatní `≥ 99` | `ApiError` | Chyba odchycena u stravy.cz |
 
-## Příklady
-Ukázkové skripty najdeš ve složce `./examples`.
+## Migrace z 2.x
+Staré `Api`, `Auth` a názvy metod fungují dál, jen vypíšou `DeprecationWarning`. Hlavní změny:
+- Jedna HTTP session pro všechny requesty, cookies se drží samy. Metody vrací jen data, nikdy `(data, cookie)`.
+- `Auth.login()` + `Auth.getCredentials()` + `Api(...)` → `Strava.login()`.
+- `getJidelnicekAll` → `menu`, `postJidlo` → `order`/`cancel`, `postDen` → `order_day`/`cancel_day`, `postOrders` → `save_orders`, `resetChanges` → `discard_changes`, `getPlatby` → `payments`, `getVydej` → `issued_meals`…
+- `logOut()` dřív volal logovací endpoint `/api/logger`, nově `logout()` opravdu odhlásí přes `/api/logOut`.
 
-## Časté chyby
-- Pokud číslo jídelny začíná 0 je nutné celou jídelnu je nutné poslat jako string ("0000")
-- Je nutné pracovat jak s číslem jídelny tak s5url
-- Test API nefunguje na 100%. Někdy jídelna má špatnou verzi (endpoint tam neexistuje err 3002), nebo prostě je něco špatně v jídelně nebo na straně stravy.cz.
+Celá tabulka je v [dokumentaci](docs/index.html#migrace).
 
-## Test API
-Jednoduchý živý test všech hlavních endpointů spusť příkazem:
+## Testy
+Offline unit testy (bez sítě):
+```bash
+python -m unittest discover tests
+```
 
+Živý test proti Stravě (zeptá se na jméno, heslo a jídelnu). Bez `--write` jen čte, s `--write` zkusí i změnu objednávky a hned ji zahodí:
 ```bash
 python test_api.py
 ```
 
-Test si vyžádá uživatelské jméno, heslo a číslo jídelny a vypíše `PASS` nebo
-`FAIL` pro každý endpoint.
-
 ## Strava verze
-- Zaznamenané strava verze společně s poznámkami. 
 
 | Verze | Funkčnost | Poznámka |
 | --- | --- | --- |
 | 5.15 | ❔ |
-| 5.14 | ✅ | Nejsou implementovány metody pro burzu.
+| 5.14 | ✅ | Nejsou implementovány metody pro burzu. |
 | 5.13 | ⭐ |
 | 5.12 | ❔ |
 | 5.11 | ❔ |
 | 4.65 | ❔ |
 | 4.64 | ❔ |
-| 4.51 | ⚠️ | Nefunkční endpointy: getJidelna, getProtokol, postJidlo, postDen, postOrders, resetChanges
+| 4.51 | ⚠️ | Nefunkční: `canteen`, `protocol`, objednávky, `save_orders` (S4 potřebuje XML změn), `discard_changes` |
 | 4.00 | ❔ |
 
 - ⭐ - stavěno na této verzi
@@ -170,7 +130,8 @@ Test si vyžádá uživatelské jméno, heslo a číslo jídelny a vypíše `PAS
 - ⚠️ - problémy
 - ❔ - neotestováno
 
-## Json struktura  (s5.13) 
+## Json struktura (s5.13)
+Jedno jídlo z `menu()` (`objednavky`):
 ```json
 {
     "tableX": [
@@ -184,7 +145,7 @@ Test si vyžádá uživatelské jméno, heslo a číslo jídelny a vypíše `PAS
             "delsiPopis": "", // delší popis chodu
             "zakazaneAlergeny": null, // ??
             "alergeny_text": "", // alergeny
-            "alergeny": [], // alergeny
+            "alergeny": [["01", "Obiloviny obsahující lepek"]], // alergeny [kód, název]
             "chod": "C", // číslo chodu (A=snídaně, B=svačina, C=oběd/balíček, D=svačina, E=večeře, F=druhá večeře)
             "druh": "OB", // druh chodu ve zkratce
             "cena": "45.00", // cena
@@ -192,7 +153,7 @@ Test si vyžádá uživatelské jméno, heslo a číslo jídelny a vypíše `PAS
             "pocet": 1, // 1 = přihlášeno, 0 = odhlášeno
             "veta": "172", // id políčka
             "vetaDieta": "196", // ??
-            "omezeniObj": { // ???
+            "omezeniObj": {
                 "den": "", // CO - ?, VP - ?
                 "obj": "", // C - Nelze objednat, I - Vždy přihlášeno (polévka), V - Svátek
                 "zm": "", // C - Nelze změnit, I - Vždy přihlášeno (polévka)
@@ -208,19 +169,18 @@ Test si vyžádá uživatelské jméno, heslo a číslo jídelny a vypíše `PAS
                 "misto": "2",
                 "mista": "2"
             },
-            "diety": { // ??
+            "diety": {
                 "dieta": "",
                 "diety": ""
             },
-            "zkratkaProduktu": "OB", // zkratka produktu (identické jako chod, u polévky chybí??)
-            "cisloJidelnicku": "1", // ??
+            "zkratkaProduktu": "OB",
+            "cisloJidelnicku": "1", // potřeba pro detail a hodnocení jídla
             "multipleNazev": "1NOběd č. 1COB", // ??
             "version": 5, // verze stravy (4/5)
             "casKonec": "2026-06-29T11:50:00", // do kdy lze přihlásit
-            "casOdhlaseni": "2026-06-29T11:50:00", // do kdy lze přihlásit
+            "casOdhlaseni": "2026-06-29T11:50:00", // do kdy lze odhlásit
             "obrazky": []
-        },
-        ...
+        }
     ]
 }
 ```
@@ -233,7 +193,8 @@ Test si vyžádá uživatelské jméno, heslo a číslo jídelny a vypíše `PAS
 - Poté se lze přihlásit na https://app.strava.cz/ na jídelně `0000`
 - Demo uživatel se smaže začátkem nového měsíce
 
-
 ## Todo
-- [ ] /api/logger
-- [ ] /api/ulozNastaveniKlienta (mnoho problémů, strava je zase random a používa náhodný MD5, subscribe mailů funguje random :D)
+- [x] /api/logOut (opravené odhlášení)
+- [ ] Burza (nabídka/poptávka jídel)
+- [ ] /api/ulozNastaveniKlienta, /api/zapisNastaveniS5 (nastavení strávníka – XML s hashem, subscribe mailů funguje random :D)
+- [ ] `save_orders()` pro S4 jídelny (posílá XML změn)
