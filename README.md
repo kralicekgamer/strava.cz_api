@@ -28,6 +28,15 @@ sid, s5url = Auth.getCredentials(data)
 
 > ℹ️ `Auth.login()` vrací `cookie` a JSON data; `Auth.getCredentials()` z nich vytáhne `sid` a `s5url`.
 
+### Auth endpoint
+
+| Metoda | Endpoint | Parametry | Návratová hodnota |
+| --- | --- | --- | --- |
+| `Auth.login(username, password, cislo_jidelny, lang="CZ", zustat_prihlasen=True, cookie="NEXT_LOCALE=cs")` | `POST https://app.strava.cz/api/login` | Uživatelské jméno, heslo, číslo jídelny, jazyk a volitelně délka přihlášení | `(data, cookie)`; `data` obsahuje přihlašovací údaje včetně `sid` a `s5url` |
+| `Auth.getCredentials(data)` | — | `data` z `Auth.login()` (dict nebo JSON řetězec) | `(sid, s5url)` pro inicializaci `Api` |
+
+`Auth.login()` může vyhodit `ValueError`, pokud `lang` není `CZ`, `EN` nebo `SK`. Parametr `zustat_prihlasen=False` zkrátí platnost přihlášení podle nastavení Stravy.
+
 ## Inicializace API
 ```py
 from strava_cz_api import Api
@@ -46,39 +55,39 @@ api = Api(
 
 | Metoda | Popis | Poznámka |
 | --- | --- | --- |
-| `getJidelny()` | Seznam jídelen
-| `getJidelna()` | Informace o jídělne
-| `getS5url()` | URL jídelny
-| `getJidelnicek()` | Get veřejného jídelníčku 
-| `getVersion()` | Verze softwaru jídelny 
+| `getJidelny()` | Seznam jídelen | |
+| `getJidelna()` | Informace o jídelně | |
+| `getS5url()` | URL jídelny | |
+| `getJidelnicek()` | Veřejný jídelníček | |
+| `getVersion()` | Verze softwaru jídelny | |
 
 ## Autentizované endpointy (Api)
 | Metoda | Popis | Poznámka |
 | --- | --- | --- |
 | `getJidelnicekToday()` | Dnešní jídelníček | Vrací list (`table0`) |
-| `getJidelnicekAll()` | Kompletní jídelníček 
-| `getInfo()` | Informace o uživateli | Upravený payload. Více pod tabulkou.
-| `userInfo()` | Veškeré info o uživateli |
+| `getJidelnicekAll()` | Kompletní jídelníček | |
+| `getInfo()` | Informace o uživateli | Upravený payload. |
+| `userInfo()` | Veškeré info o uživateli | |
 | `getUsername()` | Uživatelské jméno | Vytahuje z `getInfo()` |
-| `getJidelna()` | Informace o jídelně 
+| `getJidelna()` | Informace o jídelně | |
 | `getHistorieKlienta(date)` | Historie objednávek za měsíc | `date` = první den měsíce (např. `2025-01-01`) |
-| `getPlatby()` | Pohyby na účtu
-| `getMessages()` | Zprávy pro uživatele 
-| `getProtokol()` | Vrátí protokol
-| `getVydej()` | Vrátí list vydaných jídel.
+| `getPlatby()` | Pohyby na účtu | |
+| `getMessages()` | Zprávy pro uživatele | |
+| `getProtokol()` | Vrátí protokol | |
+| `getVydej()` | Vrátí list vydaných jídel. | |
 | `postJidlo(veta, stav)` | Přihlásit/odhlásit jídlo | `stav`: 1 přihlásit, 0 odhlásit |
 | `postDen(datum, stav)` | Přihlásit/odhlásit celý den | `datum` ve formátu `YYYY-MM-DD` |
 | `postOrders()` | Uložit změny objednávek | Nutné po `postJidlo`/`postDen` |
-| `resetChanges()` | Resetuje neuložené změny v komunikaci. | Dobré pro zrušení změn při objednávkách
-| `logOut()` | Odhlásí uživatele. | 
-| `zmenVydejniMisto(veta, vydejni_misto) `| Změní výdejní místo | 
-| `getOrderModalDetails(veta, cislo_jidelnicku, datum, druh, fetch_gramaze=True, fetch_hodnoceni=True) `| 
-| `zmenJazyk(lang) `| 
-| `zmenDietu(veta, dieta)` | Změní dietu jídla |
+| `resetChanges()` | Resetuje neuložené změny v komunikaci. | |
+| `logOut()` | Odhlásí uživatele. | |
+| `zmenVydejniMisto(veta, vydejni_misto)` | Změní výdejní místo | `veta` je ID jídla a `vydejni_misto` ID výdejního místa |
+| `getOrderModalDetails(veta, cislo_jidelnicku, datum, druh, fetch_gramaze=True, fetch_hodnoceni=True)` | Detail jídla pro objednávku | Volitelně načte gramáž a hodnocení |
+| `zmenJazyk(lang)` | Změní jazyk uživatelského účtu | `lang`: `CZ`, `EN` nebo `SK` |
+| `zmenDietu(veta, dieta)` | Změní dietu jídla | |
 | `getQrPlatba()` | Údaje pro QR platbu | Číslo účtu (`ucet`) a VS (`vs`) |
 | `getPoctyJidel(datum)` | Počty objednaných jídel za den | `datum` ve formátu `YYYY-MM-DD` |
-| `getProdej()` | Seznam prodejů (nákupů) |
-| `getMessagesAmount()` | Počet nepřečtených zpráv | Vytahuje username z `getInfo()` |
+| `getProdej()` | Seznam prodejů (nákupů) | |
+| `getMessagesAmount()` | Počet nepřečtených zpráv | |
 
 > ⚠️ Nevím přesně, co `resetTables` dělá, ale podle mě to resetuje komunikaci na straně Stravy (nějakou DB). U `getInfo` je defaultně nastavený na `false`, protože s `true` to trvá extrémně dlouho. Proto existuje metoda `resetChanges`, která to přímo volá s `true`.
 
