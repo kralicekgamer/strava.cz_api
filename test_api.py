@@ -46,12 +46,37 @@ if login:
     sid, s5url = Auth.getCredentials(data)
     api = Api(sid, s5url, cislo_jidelny, cookie=cookie)
 
+    run(
+        "Auth.init",
+        lambda: Auth.init(username, password, cislo_jidelny),
+    )
     run("Auth.getCredentials", lambda: Auth.getCredentials(data))
 
+    run("Public.getJidelny", Public.getJidelny)
     run("Public.getJidelnicek", lambda: Public.getJidelnicek(cislo_jidelny, "CZ"))
     run("Public.getJidelna", lambda: Public.getJidelna(cislo_jidelny))
     run("Public.getS5url", lambda: Public.getS5url(cislo_jidelny))
     run("Public.getVersion", lambda: Public.getVersion(cislo_jidelny))
+
+    jidelnicek = api.getJidelnicekAll()
+    jidelnicek_items = next(
+        (items for items in jidelnicek.values() if isinstance(items, list) and items),
+        [],
+    )
+    prvni_jidlo = jidelnicek_items[0] if jidelnicek_items else {}
+    veta = prvni_jidlo.get("veta")
+    cislo_jidelnicku = prvni_jidlo.get("cisloJidelnicku")
+    datum_jidla = prvni_jidlo.get("datum", date.today().isoformat())
+    druh = prvni_jidlo.get("druh")
+    vydejni_misto_data = prvni_jidlo.get("vydejniMisto")
+    vydejni_misto = (
+        vydejni_misto_data.get("misto")
+        if isinstance(vydejni_misto_data, dict)
+        else None
+    )
+    diety_data = prvni_jidlo.get("diety")
+    dieta = diety_data.get("dieta", "") if isinstance(diety_data, dict) else ""
+
     run("Api.getJidelnicekAll", api.getJidelnicekAll)
     run("Api.getJidelnicekToday", api.getJidelnicekToday)
     run("Api.userInfo", api.userInfo)
@@ -68,8 +93,37 @@ if login:
     run("Api.getMessages", api.getMessages)
     run("Api.getProtokol", api.getProtokol)
     run("Api.getVydej", api.getVydej)
+    run("Api.getQrPlatba", api.getQrPlatba)
+    run(
+        "Api.getPoctyJidel",
+        lambda: api.getPoctyJidel(date.today().isoformat()),
+    )
+    run("Api.getProdej", api.getProdej)
+    run("Api.getMessagesAmount", api.getMessagesAmount)
 
     print("\nPOST endpointy mohou měnit objednávky:")
+    if veta is not None:
+        run("Api.postJidlo", lambda: api.postJidlo(veta, 0))
+        run(
+            "Api.postDen",
+            lambda: api.postDen(date.today().isoformat(), 0),
+        )
+        run(
+            "Api.getOrderModalDetails",
+            lambda: api.getOrderModalDetails(
+                veta,
+                cislo_jidelnicku,
+                datum_jidla,
+                druh,
+            ),
+        )
+        if vydejni_misto is not None:
+            run(
+                "Api.zmenVydejniMisto",
+                lambda: api.zmenVydejniMisto(veta, vydejni_misto),
+            )
+        run("Api.zmenDietu", lambda: api.zmenDietu(veta, dieta))
+    run("Api.zmenJazyk", lambda: api.zmenJazyk(api.lang))
     run("Api.postOrders", api.postOrders)
     run("Api.resetChanges", api.resetChanges)
 
