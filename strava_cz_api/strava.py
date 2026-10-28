@@ -378,6 +378,104 @@ class Api:
 
         return self._post(url, payload)
 
+    def zmenDietu(self, veta, dieta):
+        """
+        Změní dietu jídla.
+
+        veta = číslo políčka/jídla - jde získat např. z getJidelnicek()
+        dieta = číslo diety
+
+        :return: dict
+        """
+        url = f"{self.base}/zmenDietu"
+
+        payload = {
+            "cislo": self.cislo_jidelny,
+            "sid": self.sid,
+            "url": self.s5url,
+            "veta": veta,
+            "dieta": dieta,
+            "lang": self.lang,
+            "ignoreCert": "false"
+        }
+
+        return self._post(url, payload)
+
+    def getQrPlatba(self):
+        """
+        Vrátí údaje pro QR platbu (číslo účtu, VS).
+
+        :return: dict
+        """
+        url = f"{self.base}/qr"
+
+        payload = {
+            "sid": self.sid,
+            "url": self.s5url,
+            "cislo": self.cislo_jidelny,
+            "lang": self.lang,
+            "ignoreCert": "false"
+        }
+
+        return self._post(url, payload)
+
+    def getPoctyJidel(self, datum):
+        """
+        Vrátí počty objednaných jídel za den.
+
+        datum = datum dne (např. 2025-12-30)
+
+        :return: dict
+        """
+        url = f"{self.base}/poctyJidel"
+
+        payload = {
+            "cislo": self.cislo_jidelny,
+            "url": self.s5url,
+            "sid": self.sid,
+            "funkce": "D",
+            "datum": datum,
+            "ignoreCert": "false",
+            "lang": self.lang
+        }
+
+        return self._post(url, payload)
+
+    def getProdej(self):
+        """
+        Vrátí seznam prodejů (nákupů) uživatele.
+
+        :return: dict
+        """
+        url = f"{self.base}/prodej"
+
+        payload = {
+            "cislo": self.cislo_jidelny,
+            "s5url": self.s5url,
+            "sid": self.sid,
+            "ignoreCert": "false",
+            "lang": self.lang
+        }
+
+        return self._post(url, payload)
+
+    def getMessagesAmount(self):
+        """
+        Vrátí počet nepřečtených zpráv (JidelnaNeprectene, MarketingNeprectene).
+
+        :return: dict
+        """
+        url = f"{self.base}/messagesGetAmount"
+
+        payload = {
+            "sid": "",
+            "idO": "",
+            "idJ": self.cislo_jidelny,
+            "idU": self.getUsername()
+        }
+
+        return self._post(url, payload)
+
     def logOut(self):
         """
         Odhlásí uživatele.

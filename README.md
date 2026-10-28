@@ -74,6 +74,11 @@ api = Api(
 | `zmenVydejniMisto(veta, vydejni_misto) `| Změní výdejní místo | 
 | `getOrderModalDetails(veta, cislo_jidelnicku, datum, druh, fetch_gramaze=True, fetch_hodnoceni=True) `| 
 | `zmenJazyk(lang) `| 
+| `zmenDietu(veta, dieta)` | Změní dietu jídla |
+| `getQrPlatba()` | Údaje pro QR platbu | Číslo účtu (`ucet`) a VS (`vs`) |
+| `getPoctyJidel(datum)` | Počty objednaných jídel za den | `datum` ve formátu `YYYY-MM-DD` |
+| `getProdej()` | Seznam prodejů (nákupů) |
+| `getMessagesAmount()` | Počet nepřečtených zpráv | Vytahuje username z `getInfo()` |
 
 > ⚠️ Nevím přesně, co `resetTables` dělá, ale podle mě to resetuje komunikaci na straně Stravy (nějakou DB). U `getInfo` je defaultně nastavený na `false`, protože s `true` to trvá extrémně dlouho. Proto existuje metoda `resetChanges`, která to přímo volá s `true`.
 
