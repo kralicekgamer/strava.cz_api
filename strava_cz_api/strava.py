@@ -301,6 +301,82 @@ class Api:
 
         return self._post(url, payload)
 
+    def zmenJazyk(self, lang):
+        """
+        Změní jazyk uživatele.
+
+        lang = CZ, EN nebo SK
+
+        :return: dict
+        """
+        if lang not in ("CZ", "EN", "SK"):
+            raise ValueError("Podporované jazyky: EN, CZ, SK")
+
+        url = f"{self.base}/zmenJazyk"
+
+        payload = {
+            "cislo": self.cislo_jidelny,
+            "sid": self.sid,
+            "url": self.s5url,
+            "lang": lang,
+            "ignoreCert": "false"
+        }
+
+        data = self._post(url, payload)
+        self.lang = lang
+        return data
+
+    def getOrderModalDetails(self, veta, cislo_jidelnicku, datum, druh, fetch_gramaze=True, fetch_hodnoceni=True):
+        """
+        Vrátí detail jídla (gramáže, hodnocení).
+
+        veta = číslo políčka/jídla - jde získat např. z getJidelnicek()
+        cislo_jidelnicku, datum, druh = hodnoty jídla z getJidelnicek()
+        fetch_gramaze = načíst gramáže
+        fetch_hodnoceni = načíst hodnocení
+
+        :return: dict
+        """
+        url = f"{self.base}/orderModalDetails"
+
+        payload = {
+            "sid": self.sid,
+            "url": self.s5url,
+            "cislo": self.cislo_jidelny,
+            "veta": veta,
+            "ignoreCert": "false",
+            "lang": self.lang,
+            "cisloJidelnicku": cislo_jidelnicku,
+            "datum": datum,
+            "druh": druh,
+            "fetchGramaze": fetch_gramaze,
+            "fetchHodnoceni": fetch_hodnoceni
+        }
+
+        return self._post(url, payload)
+
+    def zmenVydejniMisto(self, veta, vydejni_misto):
+        """
+        Změní výdejní místo jídla.
+
+        veta = číslo políčka/jídla - jde získat např. z getJidelnicek()
+        vydejni_misto = číslo výdejního místa
+
+        :return: dict
+        """
+        url = f"{self.base}/zmenVydejniMisto"
+
+        payload = {
+            "cislo": self.cislo_jidelny,
+            "sid": self.sid,
+            "url": self.s5url,
+            "veta": veta,
+            "vydejniMisto": vydejni_misto,
+            "lang": self.lang,
+            "ignoreCert": "false"
+        }
+
+        return self._post(url, payload)
 
     def logOut(self):
         """
@@ -308,17 +384,17 @@ class Api:
 
         :return: dict
         """
-        url = f"{self.base}/logger"
+        url = f"{self.base}/logOut"
 
         payload = {
-            "cislo": self.cislo_jidelny,
             "sid": self.sid,
+            "cislo": self.cislo_jidelny,
             "url": self.s5url,
             "lang": self.lang,
             "ignoreCert": "false"
         }
 
-        return self._get(url, payload)
+        return self._post(url, payload)
 
 
 class Public:
