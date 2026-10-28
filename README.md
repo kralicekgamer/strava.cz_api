@@ -72,6 +72,9 @@ api = Api(
 | `postOrders()` | Uložit změny objednávek | Nutné po `postJidlo`/`postDen` |
 | `resetChanges()` | Resetuje neuložené změny v komunikaci. | Dobré pro zrušení změn při objednávkách
 | `logOut()` | Odhlásí uživatele. | 
+| `zmenVydejniMisto(veta, vydejni_misto) `| Změní výdejní místo | 
+| `getOrderModalDetails(veta, cislo_jidelnicku, datum, druh, fetch_gramaze=True, fetch_hodnoceni=True) `| 
+| `zmenJazyk(lang) `| 
 
 > ⚠️ Nevím přesně, co `resetTables` dělá, ale podle mě to resetuje komunikaci na straně Stravy (nějakou DB). U `getInfo` je defaultně nastavený na `false`, protože s `true` to trvá extrémně dlouho. Proto existuje metoda `resetChanges`, která to přímo volá s `true`.
 
