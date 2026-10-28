@@ -353,7 +353,7 @@ class Api:
             "fetchHodnoceni": fetch_hodnoceni
         }
 
-        return self._post(url, payload)
+        return self._get(url, payload)
 
     def zmenVydejniMisto(self, veta, vydejni_misto):
         """

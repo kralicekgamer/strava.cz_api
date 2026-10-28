@@ -12,8 +12,7 @@ pip install strava_cz_api
 | --- | --- | --- |
 | **1.X** | ❌ | Stará verze bez error handlingu. |
 | **2.0 - 2.5.2** | ⚠️ | Nedoladěné verze. Hodně chyb.
-| **2.5.3 - 2.5.7** | ✅
-| **2.5.8** | 🚧 | In development
+| **2.5.3 - 2.5.8** | ✅
 
 ## Autentizace
 K API endpointům potřebuješ **SID** a **s5url**. Můžeš si je získat sám z dev tools v prohlížeči, ale nejlepší cesta je pomocí metod: `Auth.login()` a `Auth.getCredentials()`:
